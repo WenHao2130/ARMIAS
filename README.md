@@ -1,3 +1,4 @@
+此模块已停止制作
 #Auto Install And Setting Modules
 一款全自动安装并配置模块，Magisk模块
 
