@@ -2,7 +2,6 @@
 if [ ! -f "$MODPATH/settings.sh" ]; then
     abort "NOTFOUND FILE!!!(settings.sh)"
 else
-    # shellcheck disable=SC1091
     . "$MODPATH/settings.sh"
 fi
 ui_print "---AURORA Installer---"
@@ -46,10 +45,10 @@ Installer() {
     fi
 }
 initialize_install() {
-    if [ ! -d "$MODPATH/$ZIPLIS" ]; then
-        echo "Notfound $MODPATH/$ZIPLIS"
+    if [ ! -d "$MODPATH/$ZIPLIST" ]; then
+        ui_print "Notfound $MODPATH/$ZIPLIST"
     else
-        for file in "$MODPATH/$ZIPLIS"/*; do
+        for file in "$MODPATH/$ZIPLIST"/*; do
             if [ -f "$file" ]; then
                 Installer "$file"
             fi
@@ -95,13 +94,13 @@ CustomShell() {
 }
 ###############
 delete_temp_files() {
-    rm -rf "$MODPATH"
     tempdelete="$(dirname "$(dirname "$MODPATH")")/modules/AuroraNasa_Installer/"
     if [ -d "$tempdelete" ]; then
         rm -rf "$tempdelete"
         else
         abort "Error.No temp files found to delete."
     fi
+    rm -rf "$MODPATH"
 }
 version_check
 initialize_install
