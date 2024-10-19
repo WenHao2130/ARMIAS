@@ -46,7 +46,7 @@ Installer() {
 }
 initialize_install() {
     if [ ! -d "$MODPATH/$ZIPLIST" ]; then
-        ui_print "Notfound $MODPATH/$ZIPLIST"
+        ui_print "Notfound $ZIPLIST"
     else
         for file in "$MODPATH/$ZIPLIST"/*; do
             if [ -f "$file" ]; then
@@ -56,20 +56,20 @@ initialize_install() {
     fi
 }
 patches_install() {
-    if [ -d "$PATCHDATA" ] && [ "$(ls -A $PATCHDATA)" ]; then
-        cp -pr "$PATCHDATA"/* data/
+    if [ -d "$MODPATH/$PATCHDATA" ] && [ "$(ls -A "$MODPATH"/"$PATCHDATA")" ]; then
+        cp -pr "$MODPATH/$PATCHDATA"/* data/
     else
         ui_print "No files found in $PATCHDATA"
     fi
-    if [ -d "$PATCHSDCARD" ] && [ "$(ls -A $PATCHSDCARD)" ]; then
-        cp -pr "$PATCHSDCARD"/* "$SDCARD"/
+    if [ -d "$MODPATH/$PATCHSDCARD" ] && [ "$(ls -A "$MODPATH"/"$PATCHSDCARD")" ]; then
+        cp -pr "$MODPATH/$PATCHSDCARD"/* "$SDCARD"/
     else
         ui_print "No files found in $PATCHSDCARD"
     fi
 
-    if [ -d "$PATCHAPK" ]; then
+    if [ -d "$MODPATH/$PATCHAPK" ]; then
         apk_found=0
-        for apk_file in "$PATCHAPK"/*.apk; do
+        for apk_file in "$MODPATH"/"$PATCHAPK"/*.apk; do
             if [ -f "$apk_file" ]; then
                 install "$apk_file"
                 apk_found=1
@@ -94,12 +94,6 @@ CustomShell() {
 }
 ###############
 delete_temp_files() {
-    tempdelete="$(dirname "$(dirname "$MODPATH")")/modules/AuroraNasa_Installer/"
-    if [ -d "$tempdelete" ]; then
-        rm -rf "$tempdelete"
-        else
-        abort "Error.No temp files found to delete."
-    fi
     rm -rf "$MODPATH"
 }
 version_check

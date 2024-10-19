@@ -1,10 +1,6 @@
 #!/bin/bash
 #路径在$MODPATH下
 
-#硬路径，删除临时文件用
-grandparent_path=$(dirname "$(dirname "$(dirname "$MODPATH")")")
-MODPATH_NEW="grandparent_path/AuroraNasa_Installer"
-
 #zip模块存储的目录
 ZIPLIST="modules"
 
