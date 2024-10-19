@@ -41,4 +41,4 @@ ksu_min_kernel_version="11847"
 #apatch最小版本
 apatch_min_version="10657"
 #安卓API最小版本
-ANDRIOD_API="30"
+ANDROID_API="30"
