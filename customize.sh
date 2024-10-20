@@ -1,10 +1,10 @@
 #!/bin/bash
 if [ ! -f "$MODPATH/settings.sh" ]; then
-    abort "NOTFOUND FILE!!!(settings.sh)"
+    abort "Error: notfound file!!!(settings.sh)"
 else
     . "$MODPATH/settings.sh"
 fi
-ui_print "---AURORA Installer---"
+ui_print "---AuroraNasa Installer---"
 ########################
 version_check() {
     if [[ $KSU_VER_CODE != "" ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
@@ -32,7 +32,7 @@ Aurora_Installer() {
     elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --install-module "$1"
     else
-        abort "Error, please upgrade the root plan or change the root plan"
+        abort "Error: please upgrade the root plan or change the root plan"
     fi
 }
 Installer() {
@@ -71,8 +71,11 @@ patches_install() {
         apk_found=0
         for apk_file in "$MODPATH"/"$PATCHAPK"/*.apk; do
             if [ -f "$apk_file" ]; then
-                install "$apk_file"
-                apk_found=1
+                if pm install "$apk_file"; then
+                    apk_found=1
+                else
+                    ui_print "Failed to install $apk_file"
+                fi
             fi
         done
         if [ $apk_found -eq 0 ]; then
@@ -101,3 +104,4 @@ initialize_install
 patches_install
 CustomShell
 delete_temp_files
+info

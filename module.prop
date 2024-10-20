@@ -1,6 +1,6 @@
 id=AuroraNasa_Installer
 name=高自定义度的自动化模块安装和配置模块
-version=V0.2.0
-versionCode=21
+version=V0.2.1
+versionCode=22
 author=AuroraNasa
 description=重启后此模块会自动删除，请勿干扰

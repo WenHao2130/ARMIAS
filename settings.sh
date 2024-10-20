@@ -38,3 +38,9 @@ ksu_min_kernel_version="11847"
 apatch_min_version="10657"
 #安卓API最小版本
 ANDROID_API="30"
+
+MAKER="AuroraNasa"
+info () {
+    ui_print "$MAKER"
+    #在此写入您要模块安装完成后输出的信息
+}
