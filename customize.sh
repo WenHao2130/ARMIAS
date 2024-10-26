@@ -6,6 +6,26 @@ else
 fi
 ui_print "---AuroraNasa Installer---"
 ########################
+key_install() {
+    key_pressed=""
+    while true; do
+        local output=$(/system/bin/getevent -qlc 1)
+        local key_event=$(echo "$output" | awk '{ print $3 }' | grep 'KEY_')
+        local key_status=$(echo "$output" | awk '{ print $4 }')
+        if [[ "$key_event" == *"KEY_"* && "$key_status" == "DOWN" ]]; then
+            key_pressed="$key_event"
+            break
+        fi
+    done
+    while true; do
+        local output=$(/system/bin/getevent -qlc 1)
+        local key_event=$(echo "$output" | awk '{ print $3 }' | grep 'KEY_')
+        local key_status=$(echo "$output" | awk '{ print $4 }')
+        if [[ "$key_event" == "$key_pressed" && "$key_status" == "UP" ]]; then
+            break
+        fi
+    done
+}
 version_check() {
     if [[ $KSU_VER_CODE != "" ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
         abort "Unsupported KernelSU version$KSU_VER_CODE (versionCode >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)"
@@ -44,6 +64,21 @@ Installer() {
         abort "Error: The value of the Installer_Compatibility is invalid and must be true or false."
     fi
 }
+magisk_installer() {
+    if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+        Installer "$1"
+    fi
+}
+apd_installer() {
+    if [ "$APATCH" = true ]; then
+        Installer "$1"
+    fi
+}
+ksu_installer() {
+    if [ "$KSU" = true ]; then
+        Installer "$1"
+    fi
+}
 initialize_install() {
     if [ ! -d "$MODPATH/$ZIPLIST" ]; then
         ui_print "Notfound $ZIPLIST"
@@ -51,18 +86,28 @@ initialize_install() {
         for file in "$MODPATH/$ZIPLIST"/*; do
             if [ -f "$file" ]; then
                 Installer "$file"
+            else
+                ui_print "No more files to install"
             fi
         done
     fi
 }
+key_installer() {
+    key_install
+    if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
+        Installer "$1"
+    else
+        Installer "$2"
+    fi
+}
 patches_install() {
     if [ -d "$MODPATH/$PATCHDATA" ] && [ "$(ls -A "$MODPATH"/"$PATCHDATA")" ]; then
-        cp -pr "$MODPATH/$PATCHDATA"/* data/
+        cp -r "$MODPATH/$PATCHDATA"/* data/
     else
         ui_print "No files found in $PATCHDATA"
     fi
     if [ -d "$MODPATH/$PATCHSDCARD" ] && [ "$(ls -A "$MODPATH"/"$PATCHSDCARD")" ]; then
-        cp -pr "$MODPATH/$PATCHSDCARD"/* "$SDCARD"/
+        cp -r "$MODPATH/$PATCHSDCARD"/* "$SDCARD"/
     else
         ui_print "No files found in $PATCHSDCARD"
     fi
@@ -95,13 +140,8 @@ CustomShell() {
         abort "Error: The value of the CustomScript is invalid and must be true or false."
     fi
 }
-###############
-delete_temp_files() {
-    rm -rf "$MODPATH"
-}
 version_check
 initialize_install
 patches_install
 CustomShell
-delete_temp_files
 info

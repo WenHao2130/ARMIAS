@@ -8,8 +8,21 @@
 ###################################
 #安装单个模块例
 #Installer "path/to/module.zip"
+
 #调用兼容模式
 #Installer_Compatibility_mode "path/to/module.zip"
+###################################
+#音量键安装模块例 $1是上键安装的模块 $2是下键安装的模块
+#key_installer "path/to/module.zip" "path/to/module.zip"
+
+#你也可以调用音量键检测函数
+#key_install
+#检测结果在$key_pressed变量中
+###################################、
+#magisk_installer "path/to/module.zip"
+#apd_installer "path/to/module.zip"
+#ksu_installer "path/to/module.zip"
+#检测是否在目标环境中，如果是，则运行安装，否则不运行
 ###################################
 #补丁模块例
 
