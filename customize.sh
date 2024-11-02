@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ ! -f "$MODPATH/settings.txt" ]; then
-    abort "Error: notfound file!!!(settings.txt)"
+if [ ! -f "$MODPATH/settings.sh" ]; then
+    abort "Error: notfound file!!!(settings.sh)"
 else
     . "$MODPATH/settings.sh"
 fi
