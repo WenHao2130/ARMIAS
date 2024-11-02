@@ -1,0 +1,6 @@
+id=AuroraNasa_Installer
+name=Highly customizable automated module installation and configuration module
+version=V0.2.5
+versionCode=25
+author=AuroraNasa
+description=This module will be automatically deleted after restarting, please do not interfere

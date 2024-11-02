@@ -2,6 +2,8 @@
 #此脚本继承了默认脚本和设置脚本的变量和函数，可以直接调用
 
 #可以自定义变量运行以下函数
+#Aurora_ui_print "打印内容"
+#此函数相比ui_print更加美观
 #遍历安装$ZIPLIST下的模块initialize_install
 #循环不必多说，请自行添加
 #运行遍历修补补丁patches_install
@@ -12,11 +14,12 @@
 #调用兼容模式
 #Installer_Compatibility_mode "path/to/module.zip"
 ###################################
-#音量键安装模块例 $1是上键安装的模块 $2是下键安装的模块
-#key_installer "path/to/module.zip" "path/to/module.zip"
+#音量键安装模块例 $1是上键安装的模块 $2是下键安装的模块 $3是上键模块名称 $4是下键模块名称 -模块名称可以选择不填
+#如果不填模块名称，则不会输出提示音量上键安装xxx模块名称和音量下键安装xxx模块名称
+#key_installer "path/to/module.zip" "path/to/module.zip" "模块名称" "模块名称"
 
 #你也可以调用音量键检测函数
-#key_install
+#key_select
 #检测结果在$key_pressed变量中
 ###################################、
 #magisk_installer "path/to/module.zip"

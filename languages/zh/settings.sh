@@ -1,6 +1,5 @@
 #!/bin/bash
 #路径在$MODPATH下
-
 #zip模块存储的目录
 ZIPLIST="modules"
 
@@ -15,9 +14,10 @@ PATCHAPK="patches/apks"
 #用户态路径
 SDCARD="/storage/emulated/0"
 
-
 #高级设置
-
+#语言设置
+langpath="languages.txt"
+print_languages="zh"
 #兼容模式安装模块，非必要时不需要开启
 Installer_Compatibility="false"
 #是否启用自定义脚本
@@ -29,18 +29,19 @@ CustomScriptPath="custom_script.sh"
 ####################################
 
 #magisk最小版本
-magisk_min_version="26000"
-#ksu最小版本
-ksu_min_version="11847"
-#ksu最小内核版本
-ksu_min_kernel_version="11847"
-#apatch最小版本
+magisk_min_version="25400"
+
+#ksu最小兼容版本
+ksu_min_version="11300"
+#ksu最小兼容内核版本
+ksu_min_kernel_version="11300"
+#ksu最小正常版本
+ksu_min_normal_version="99999"
+
+#apatch最小兼容版本
 apatch_min_version="10657"
+#apatch最小正常版本
+apatch_min_normal_version="10800"
+
 #安卓API最小版本
 ANDROID_API="30"
-
-MAKER="AuroraNasa"
-info () {
-    ui_print "$MAKER"
-    #在此写入您要模块安装完成后输出的信息
-}
