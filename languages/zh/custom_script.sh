@@ -1,46 +1,43 @@
-#欢迎编辑自定义脚本！
-#此脚本继承了默认脚本和设置脚本的变量和函数，可以直接调用
+# 自定义脚本
+# -----------------
+# 此脚本在默认脚本和设置脚本的基础上进行了扩展，可以直接使用其中的变量和函数。
 
-#可以自定义变量运行以下函数
-#Aurora_ui_print "打印内容"
-#此函数相比ui_print更加美观
-#遍历安装$ZIPLIST下的模块initialize_install
-#循环不必多说，请自行添加
-#运行遍历修补补丁patches_install
-###################################
-#安装单个模块例
-#Installer "path/to/module.zip"
+# 自定义功能概览
+# --------------
+# 1. 美观打印：使用 Aurora_ui_print "要打印的内容" 进行美观的内容展示。
+# 2. 模块安装：通过 initialize_install 函数，可以自动安装 $ZIPLIST 目录下的所有模块。
+# 3. 补丁安装：patches_install 函数会遍历并安装所有补丁。
 
-#调用兼容模式
-#Installer_Compatibility_mode "path/to/module.zip"
-###################################
-#音量键安装模块例 $1是上键安装的模块 $2是下键安装的模块 $3是上键模块名称 $4是下键模块名称 -模块名称可以选择不填
-#如果不填模块名称，则不会输出提示音量上键安装xxx模块名称和音量下键安装xxx模块名称
-#key_installer "path/to/module.zip" "path/to/module.zip" "模块名称" "模块名称"
+# 示例：安装单个模块
+# -----------------
+# 使用 Installer "模块路径.zip" 来安装指定的模块。
 
-#你也可以调用音量键检测函数
-#key_select
-#检测结果在$key_pressed变量中
-###################################、
-#magisk_installer "path/to/module.zip"
-#apd_installer "path/to/module.zip"
-#ksu_installer "path/to/module.zip"
-#检测是否在目标环境中，如果是，则运行安装，否则不运行
-###################################
-#补丁模块例
+# 示例：兼容模式安装
+# ----------------
+# 若需要在兼容模式下安装模块，请使用 Installer_Compatibility_mode "模块路径.zip"。
 
-#模块补丁存储的目录
-PATCHMOD="patches/modules"
-#请创建~/patches/modules/文件夹
+# 示例：音量键选择安装模块
+# ---------------------
+# 使用 key_installer "上键模块路径.zip" "下键模块路径.zip" "上键模块名" "下键模块名" 来通过音量键选择安装的模块。
+# 如果不填写模块名称，安装时不会显示相关提示。
 
-#cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules_update/"
+# 示例：检测音量键选择
+# ------------------
+# 调用 key_select 函数后，可以通过 $key_pressed 变量获取用户通过音量键的选择结果。
 
-#如果想补丁模块，请删除上面一行的#号
-#补丁模块的路径一般是/data/adb/modules_update/
-#补丁规则：将~/patches/modules/目录下的文件复制到data/adb/modules_update/下
-#所以请在~/patches/modules/目录下创建与安装模块id相同的文件夹，并将需要补丁的文件放入该文件夹中
+# 专用安装函数
+# ------------
+# 针对特定组件，可以使用以下函数进行安装：
+# - magisk_installer "模块路径.zip"
+# - apd_installer "模块路径.zip"
+# - ksu_installer "模块路径.zip"
+# 这些函数会在检测到目标环境时自动执行安装。
 
-#补丁已安装模块例
-#cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
+# 示例：补丁已安装模块
+# -----------------
+# 若需将补丁应用于已安装的模块，可以使用如下命令：
+# cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
 
-#请勿在此脚本使用exit和abort函数
+# 注意事项
+# ------
+# 请勿在此脚本中使用 exit 和 abort 函数，以避免意外中断脚本执行。

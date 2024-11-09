@@ -1,47 +1,31 @@
-#!/bin/bash
-#パスは$MODPATH下にあります
-#zipモジュールを格納するディレクトリ
-ZIPLIST="modules"
+# 脚本の設定パラメータ
 
-#パッチモジュールに未知の問題が存在します（Magiskは問題なし）、廃止済みです、使用を希望する場合は自分でカスタムスクリプトを編集してください
+# モジュールの格納のベースパス
+# MODPATH
 
-#パッチDATAを格納するディレクトリ
-PATCHDATA="patches/data"
-#パッチsdcardを格納するディレクトリ
-PATCHSDCARD="patches/sdcard"
-#APKをインストールするディレクトリ（非システムアプリ）
-PATCHAPK="patches/apks"
-#ユーザスペースのパス
-SDCARD="/storage/emulated/0"
+# 各ディレクトリのパス定義
+ZIPLIST="/modules"                     # zipモジュールの格納ディレクトリ
+PATCHDATA="/patches/data"              # パッチDATAの格納ディレクトリ
+PATCHSDCARD="/patches/sdcard"          # パッチsdcardの格納ディレクトリ
+PATCHAPK="/patches/apks"               # APKのインストール格納ディレクトリ（非システムアプリ）
+SDCARD="/storage/emulated/0"           # ユーザースペースsdcardのパス
+PATCHMOD="/patches/modules"            # パッチモジュールの格納ディレクトリ
+CustomScriptPath="/custom_script.sh"   # カスタムスクリプトのパス
 
-#上級者向け設定
-#言語設定
-langpath="languages.txt"
-print_languages="jp"
-#互換性モードでモジュールをインストール、非必要の時はオンにしないでください
-Installer_Compatibility="false"
-#カスタムスクリプトを有効にするかどうか
-CustomScript="false"
-#カスタムスクリプトのパス
-CustomScriptPath="custom_script.sh"
-####################################
-#ここにカスタム変数を追加可能
-####################################
+# 高度な設定
+langpath="languages.txt"               # 言語設定ファイルのパス
+print_languages="jp"                   # 既定で印刷する言語
+Installer_Compatibility=false          # モジュールのインストールに互換性モードを有効にするか（必要でない限り推奨しない）
+Installer_Log=true                     # モジュールのインストールを記録するか
+CustomScript=false                     # カスタムスクリプトを有効にするか
 
-#magiskの最小バージョン
-magisk_min_version="25400"
+# ユーザ定義変数エリア（必要に応じてより多くの変数を追加可）
 
-#ksuの最小互換性バージョン
-ksu_min_version="11300"
-#ksuの最小互換性カーネルバージョン
-ksu_min_kernel_version="11300"
-#ksuの最小正常バージョン
-ksu_min_normal_version="99999"
-
-#apatchの最小互換性バージョン
-apatch_min_version="10657"
-#apatchの最小正常バージョン
-apatch_min_normal_version="10800"
-
-#アンドロイドAPIの最小バージョン
-ANDROID_API="30"
+# Magisk及び関連したコンポーネントのバージョン要件
+magisk_min_version="25400"             # 必要なMagiskの最低バージョン
+ksu_min_version="11300"                # 必要なKernelSUの最低互換性バージョン
+ksu_min_kernel_version="11300"         # 必要なKernelSUの最低互換性カーネルバージョン
+ksu_min_normal_version="99999"         # 通常使用に必要なKernelSUの最低バージョン
+apatch_min_version="10657"             # 必要なAPatchの最低互換性バージョン
+apatch_min_normal_version="10832"      # 通常使用に必要なAPatchの最低バージョン
+ANDROID_API="30"                       # 必要な最低Android APIバージョン

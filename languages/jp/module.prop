@@ -1,6 +1,6 @@
 id=AuroraNasa_Installer
 name=高度のカスタマイズ性を持つた自動化モジュールのインストールと設定モジュール
-version=V0.2.5
-versionCode=25
+version=V0.2.8
+versionCode=28
 author=AuroraNasa
 description=再起動後、このモジュールは自動的に削除されます。干渉しないでください。

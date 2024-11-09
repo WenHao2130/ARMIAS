@@ -1,46 +1,43 @@
-# Welcome to edit the custom script!
-# This script inherits variables and functions from the default and setup scripts, which can be called directly.
+# Custom Script
+# -----------------
+# This script extends the functionality of the default and setup scripts, allowing direct use of their variables and functions.
 
-# You can define custom variables and run the following functions
-# Aurora_ui_print "Print content"
-# This function is more aesthetically pleasing compared to ui_print
-# Iterate through and install modules under $ZIPLIST with initialize_install
-# No need to explain the loop, please add it yourself
-# Run patches_install to apply patches
-###################################
-# Example of installing a single module
-# Installer "path/to/module.zip"
+# Overview of Custom Features
+# --------------
+# 1. Aesthetic Printing: Use Aurora_ui_print "content to print" for visually appealing content display.
+# 2. Module Installation: The initialize_install function automates the installation of all modules in the $ZIPLIST directory.
+# 3. Patch Installation: The patches_install function iterates through and installs all patches.
 
-# Call compatibility mode
-# Installer_Compatibility_mode "path/to/module.zip"
-###################################
-# Example of installing modules with volume keys: $1 is the module installed with the volume up key, $2 is the module installed with the volume down key, $3 is the name of the module for the volume up key, $4 is the name of the module for the volume down key - module names are optional
-# If you don't fill in the module name, it will not output the prompt "Install xxx module with volume up key" and "Install xxx module with volume down key"
-# key_installer "path/to/module.zip" "path/to/module.zip" "Module Name" "Module Name"
+# Example: Installing a Single Module
+# -----------------
+# Use Installer "module_path.zip" to install a specific module.
 
-# You can also call the volume key detection function
-# key_select
-# The detection result is stored in the $key_pressed variable
-###################################
-# magisk_installer "path/to/module.zip"
-# apd_installer "path/to/module.zip"
-# ksu_installer "path/to/module.zip"
-# Detect if in the target environment, if so, run the installation, otherwise do not run
-###################################
-# Example of patching a module
+# Example: Compatibility Mode Installation
+# ----------------
+# To install a module in compatibility mode, use Installer_Compatibility_mode "module_path.zip".
 
-# Directory where module patches are stored
-PATCHMOD="patches/modules"
-# Please create the ~/patches/modules/ folder
+# Example: Volume Key Selection for Module Installation
+# ---------------------
+# Use key_installer "up_key_module_path.zip" "down_key_module_path.zip" "up_key_module_name" "down_key_module_name" to select and install modules using volume keys.
+# If module names are not provided, relevant prompts will not be displayed during installation.
 
-# cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules_update/"
+# Example: Detecting Volume Key Selection
+# ------------------
+# After calling the key_select function, the user's selection made through the volume keys can be accessed via the $key_pressed variable.
 
-# If you want to patch a module, please remove the # symbol from the line above
-# The path for patching modules is generally /data/adb/modules_update/
-# Patching rule: Copy files from the ~/patches/modules/ directory to data/adb/modules_update/
-# So, please create a folder with the same ID as the installed module under ~/patches/modules/, and put the files that need patching into that folder
+# Dedicated Installation Functions
+# ------------
+# For specific components, the following functions can be used for installation:
+# - magisk_installer "module_path.zip"
+# - apd_installer "module_path.zip"
+# - ksu_installer "module_path.zip"
+# These functions automatically execute installation when the target environment is detected.
 
-# Example of patching an already installed module
+# Example: Patching Installed Modules
+# -----------------
+# To apply patches to already installed modules, use the following command:
 # cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
 
-# Please do not use the exit and abort functions in this script
+# Important Notes
+# ------
+# Please avoid using the exit and abort functions in this script to prevent accidental interruption of script execution.

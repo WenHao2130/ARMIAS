@@ -16,9 +16,9 @@
 - **DATA和SDCARD一键覆盖**  
   - 鉴于某些模块安装后会生成配置文件等在data/或android文件夹中。
   - 本模块提供一键将模块内目标文件批量复制至data/或sdcard/的功能，便于模块的配置与使用。
-  - 同时，也支持直接修改`/data`和`/sdcard`。  
+  - 同时，也支持直接修改`data`和`sdcard`。  
   **注意**：此操作会复制“模块内目标目录/*”下的所有文件，请确保设置了正确的文件夹结构，并**正确设置权限**。  
-  目标目录示例：`patches/sdcard`, `patches/data/`, `patches/apks`
+  模块内目录示例：`patches/sdcard/`, `patches/data/`, `patches/apks/`
 
 
 - **自动批量安装APK** `(su)`  
@@ -26,11 +26,12 @@
 
 
 - **安装后模块修补**  
-  此功能较为简单，不再赘述。
+  将`/patches/modules/`目录下的文件复制到`data/adb/modules_update/`下
+  请在`/patches/modules/`目录下创建与安装模块id相同的文件夹，并将需要补丁的文件放入该文件夹中
 
 
 - **配置文件：settings.sh**  
-  支持修改模块80%的路径变量，语言，设置最低安卓API、Magisk版本、ksu版本、apatch版本，以及自定义脚本。  
+  支持修改模块80%的路径变量，语言，禁用log，设置最低安卓API、Magisk版本、ksu版本、apatch版本，以及自定义脚本。  
   __如遇安装问题，请尝试启用**兼容模式**。__
 
 

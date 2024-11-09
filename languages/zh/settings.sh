@@ -1,47 +1,32 @@
-#!/bin/bash
-#路径在$MODPATH下
-#zip模块存储的目录
-ZIPLIST="modules"
+# 脚本配置参数
 
-#补丁模块存在未知问题（Magisk无问题），已弃用，如需使用请自行编辑自定义脚本
+# 模块存储的基础路径
+# MODPATH
 
-#补丁DATA存储的目录
-PATCHDATA="patches/data"
-#补丁sdcard存储的目录
-PATCHSDCARD="patches/sdcard"
-#安装APK存储的目录（非系统应用）
-PATCHAPK="patches/apks"
-#用户态路径
-SDCARD="/storage/emulated/0"
+# 各个目录的路径定义
+ZIPLIST="/modules"                     # zip模块存储的目录
+PATCHDATA="/patches/data"              # 补丁DATA存储的目录
+PATCHSDCARD="/patches/sdcard"          # 补丁sdcard存储的目录
+PATCHAPK="/patches/apks"               # 安装APK存储的目录（非系统应用）
+SDCARD="/storage/emulated/0"           # 用户态sdcard路径
+PATCHMOD="/patches/modules"            # 补丁模块存储的目录
+CustomScriptPath="/custom_script.sh"   # 自定义脚本的路径
 
-#高级设置
-#语言设置
-langpath="languages.txt"
-print_languages="zh"
-#兼容模式安装模块，非必要时不需要开启
-Installer_Compatibility="false"
-#是否启用自定义脚本
-CustomScript="false"
-#自定义脚本路径
-CustomScriptPath="custom_script.sh"
-####################################
-#可在此添加自定义变量
-####################################
 
-#magisk最小版本
-magisk_min_version="25400"
+# 高级设置
+langpath="languages.txt"               # 语言设置文件路径
+print_languages="zh"                   # 默认打印的语言
+Installer_Compatibility=false          # 是否启用兼容模式安装模块（非必要时不建议开启）
+Installer_Log=true                     # 是否记录安装模块的日志
+CustomScript=false                     # 是否启用自定义脚本
 
-#ksu最小兼容版本
-ksu_min_version="11300"
-#ksu最小兼容内核版本
-ksu_min_kernel_version="11300"
-#ksu最小正常版本
-ksu_min_normal_version="99999"
+# 用户自定义变量区域（可根据需要添加更多变量）
 
-#apatch最小兼容版本
-apatch_min_version="10657"
-#apatch最小正常版本
-apatch_min_normal_version="10800"
-
-#安卓API最小版本
-ANDROID_API="30"
+# Magisk及相关组件的版本要求
+magisk_min_version="25400"             # 要求的Magisk最低版本
+ksu_min_version="11300"                # 要求的KernelSU最低兼容版本
+ksu_min_kernel_version="11300"         # 要求的KernelSU最低兼容内核版本
+ksu_min_normal_version="99999"         # 要求的KernelSU常规使用最低版本
+apatch_min_version="10657"             # 要求的APatch最低兼容版本
+apatch_min_normal_version="10832"      # 要求的APatch常规使用最低版本
+ANDROID_API="30"                       # 要求的最低安卓API版本

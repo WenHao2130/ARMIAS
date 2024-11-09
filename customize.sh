@@ -1,124 +1,111 @@
 #!/bin/bash
 if [ ! -f "$MODPATH/settings.sh" ]; then
-    abort "Error: notfound file!!!(settings.sh)"
+    abort "Notfound File!!!(settings.sh)"
 else
     . "$MODPATH/settings.sh"
 fi
-if [ ! -f "$MODPATH/languages.txt" ]; then
-    abort "Error: notfound file!!!(languages.txt)"
+if [ ! -f "$MODPATH/$langpath" ]; then
+    abort "Notfound File!!!($langpath)"
 else
-    . "$MODPATH/languages.txt"
+    . "$MODPATH/$langpath"
+    eval "lang_$print_languages"
 fi
-if [ $print_languages == "en" ]; then
-    lang_en
-elif [ $print_languages == "zh" ]; then
-    lang_zh
-elif [ $print_languages == "jp" ]; then
-    lang_jp
-fi
-ui_print "---AuroraNasa Installer---"
 #######################################################
 Aurora_ui_print() {
     sleep 0.05
     ui_print ""
     ui_print "- $1"
 }
+Aurora_abort() {
+    ui_print "$ERROR_TEXT: $1"
+    abort "$ERROR_CODE_TEXT: $2"
+}
 version_check() {
     if [[ $KSU_VER_CODE != "" ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
-        abort "$ERROR_TEXTS : KernelSU: $ERROR_SUPPORTED_TEXTS $KSU_VER_CODE ($ERROR_SUPPORTED_VERSION_TEXTS >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)"
+        Aurora_abort "KernelSU: $ERROR_UNSUPPORTED_VERSION $KSU_VER_CODE ($ERROR_VERSION_NUMBER >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)" 1
     elif [[ -z $APATCH && -z $KSU && $MAGISK_VER_CODE != "" && $MAGISK_VER_CODE -lt $magisk_min_version ]]; then
-        abort "$ERROR_TEXTS : Magisk: $ERROR_SUPPORTED_TEXTS $MAGISK_VER_CODE ($ERROR_SUPPORTED_VERSION_TEXTS >= $magisk_min_version)"
+        Aurora_abort "Magisk: $ERROR_UNSUPPORTED_VERSION $MAGISK_VER_CODE ($ERROR_VERSION_NUMBER >= $magisk_min_version)" 1
     elif [[ $APATCH_VER_CODE != "" && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
-        abort "$ERROR_TEXTS : APatch: $ERROR_SUPPORTED_TEXTS $APATCH_VER_CODE ($ERROR_SUPPORTED_VERSION_TEXTS >= $apatch_min_version)"
+        Aurora_abort "APatch: $ERROR_UNSUPPORTED_VERSION $APATCH_VER_CODE ($ERROR_VERSION_NUMBER >= $apatch_min_version)" 1
     elif [[ $API -lt $ANDROID_API ]]; then
-        abort "$ERROR_TEXTS : Android API: $ERROR_SUPPORTED_TEXTS $API ($ERROR_SUPPORTED_VERSION_TEXTS >= $ANDROID_API)"
+        Aurora_abort "Android API: $ERROR_UNSUPPORTED_VERSION $API ($ERROR_VERSION_NUMBER >= $ANDROID_API)" 2
     fi
 }
 Installer_Compatibility_mode() {
     MODPATHBACKUP=$MODPATH
+    # shellcheck disable=SC2034
     for ZIPFILE in $1; do
-        install_module
+        install_module $redirect_output
     done
     MODPATH=$MODPATHBACKUP
 }
 Aurora_Installer() {
     if [ "$KSU" = true ]; then
-        ksud module install "$1"
+        ksud module install "$1" $redirect_output
     elif [ "$APATCH" = true ]; then
-        apd module install "$1"
+        apd module install "$1" $redirect_output
     elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-        magisk --install-module "$1"
+        magisk --install-module "$1" $redirect_output
     else
-        abort "$ERROR_TEXTS : $ERROR_Installer_TEXTS"
+        Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
     fi
 }
 Installer() {
     if [ "$KSU" = true ]; then
         if [ "$KSU_VER_CODE" -le "$ksu_min_normal_version" ]; then
             Installer_Compatibility=true
-            Aurora_ui_print "KernelSU: $WARN_Installer_select_Compatibility_mode_TEXTS"
+            Aurora_ui_print "KernelSU: $WARN_FORCED_COMPATIBILITY_MODE"
         fi
     elif [ "$APATCH" = true ]; then
         if [ "$APATCH_VER_CODE" -le "$apatch_min_normal_version" ]; then
             Installer_Compatibility=true
-            Aurora_ui_print "APatch: $WARN_Installer_select_Compatibility_mode_TEXTS"
+            Aurora_ui_print "APatch: $WARN_FORCED_COMPATIBILITY_MODE"
         fi
+    fi
+    if [[ "$Installer_Log" == "false" ]]; then
+        Aurora_ui_print "$INSTALLER_LOG_DISABLED"
+        redirect_output='> /dev/null 2>&1'
+    elif [[ "$Installer_Log" == "true" ]]; then
+        Aurora_ui_print "$INSTALLER_START_LOG_ENABLED"
+    else
+        Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [[ "$Installer_Compatibility" == "false" ]]; then
         Aurora_Installer "$1"
     elif [[ "$Installer_Compatibility" == "true" ]]; then
         Installer_Compatibility_mode "$1"
     else
-        abort "$ERROR_TEXTS : $ERROR_Installer_Compatibility_mode_TEXTS"
-    fi
-}
-magisk_installer() {
-    if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-        Installer "$1"
-    fi
-}
-apd_installer() {
-    if [ "$APATCH" = true ]; then
-        Installer "$1"
-    fi
-}
-ksu_installer() {
-    if [ "$KSU" = true ]; then
-        Installer "$1"
+        Aurora_abort "Installer_Compatibility$ERROR_INVALID_LOCAL_VALUE" 4
     fi
 }
 initialize_install() {
     if [ ! -d "$MODPATH/$ZIPLIST" ]; then
-        Aurora_ui_print "$WARN_Installer_ZIPPATH_TEXTS $ZIPLIST"
+        Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $ZIPLIST"
     else
         for file in "$MODPATH/$ZIPLIST"/*; do
             if [ -f "$file" ]; then
                 Installer "$file"
             else
-                Aurora_ui_print "$WARN_Installer_ZIP_FOUND_TEXTS"
+                Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
             fi
         done
     fi
 }
+patch_default() {
+    if [ -d "$1/$2" ]; then
+        if [ -d "$1/$2" ] && [ "$(ls -A "$1"/"$2")" ]; then
+            cp -r "$1/$2"/* "$3"/
+        else
+            Aurora_ui_print "$WARN_PATCH_NOT_FOUND_IN $2"
+        fi
+    else
+        Aurora_ui_print "$2 $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
+    fi
+}
 patches_install() {
-    if [ -d "$MODPATH/$PATCHDATA" ]; then
-        if [ -d "$MODPATH/$PATCHDATA" ] && [ "$(ls -A "$MODPATH"/"$PATCHDATA")" ]; then
-            cp -r "$MODPATH/$PATCHDATA"/* data/
-        else
-            Aurora_ui_print "$WARN_Installer_PATCH_FOUND_TEXTS $PATCHDATA"
-        fi
-    else
-        Aurora_ui_print "$PATCHDATA $WARN_Installer_PATCHPATH_TEXTS"
-    fi
-    if [ -d "$MODPATH/$PATCHSDCARD" ]; then
-        if [ -d "$MODPATH/$PATCHSDCARD" ] && [ "$(ls -A "$MODPATH"/"$PATCHSDCARD")" ]; then
-            cp -r "$MODPATH/$PATCHSDCARD"/* "$SDCARD"/
-        else
-            Aurora_ui_print "$WARN_Installer_PATCH_FOUND_TEXTS $PATCHSDCARD"
-        fi
-    else
-        Aurora_ui_print "$PATCHSDCARD $WARN_Installer_PATCHPATH_TEXTS"
-    fi
+    patch_default "$MODPATH" "$PATCHDATA" "/data"
+    patch_default "$MODPATH" "$PATCHSDCARD" "$SDCARD"
+    patch_default "$MODPATH" "$PATCHMOD" "$SECURE_DIR/modules_update/"
     if [ -d "$MODPATH/$PATCHAPK" ]; then
         apk_found=0
         for apk_file in "$MODPATH"/"$PATCHAPK"/*.apk; do
@@ -126,15 +113,15 @@ patches_install() {
                 if pm install "$apk_file"; then
                     apk_found=1
                 else
-                    Aurora_ui_print "$WARN_Installer_APK_TEXTS $apk_file"
+                    Aurora_ui_print "$WARN_APK_INSTALLATION_FAILED $apk_file"
                 fi
             fi
         done
         if [ $apk_found -eq 0 ]; then
-            Aurora_ui_print "$WARN_Installer_APK_FOUND_TEXTS $PATCHAPK"
+            Aurora_ui_print "$WARN_PATCH_NOT_FOUND_IN $PATCHAPK"
         fi
     else
-        Aurora_ui_print "$PATCHAPK $WARN_Installer_PATCHPATH_TEXTS"
+        Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
 key_select() {
@@ -169,14 +156,34 @@ key_installer() {
         Installer "$2"
     fi
 }
+only_magisk() {
+    if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+        magisk --denylist add "$1" >/dev/null 2>&1
+    fi
+}
+magisk_installer() {
+    if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+        Installer "$1"
+    fi
+}
+apd_installer() {
+    if [ "$APATCH" = true ]; then
+        Installer "$1"
+    fi
+}
+ksu_installer() {
+    if [ "$KSU" = true ]; then
+        Installer "$1"
+    fi
+}
 CustomShell() {
     if [[ "$CustomScript" == "false" ]]; then
-        Aurora_ui_print "$Installer_CustomScript_false_TEXTS"
+        Aurora_ui_print "$CUSTOM_SCRIPT_DISABLED"
     elif [[ "$CustomScript" == "true" ]]; then
-        Aurora_ui_print "$Installer_CustomScript_true_TEXTS"
+        Aurora_ui_print "$CUSTOM_SCRIPT_ENABLED"
         source "$MODPATH/$CustomScriptPath"
     else
-        abort "$ERROR_TEXTS : $ERROR_Installer_CustomScript_TEXTS"
+        Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
 }
 version_check

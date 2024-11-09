@@ -16,21 +16,22 @@
 - **One-Click DATA and SDCARD Overwrite**
   - Considering that some modules generate configuration files in the data/ or android folders after installation.
   - This module provides a one-click function to batch copy target files within the module to data/ or sdcard/, facilitating module configuration and usage.
-  - Additionally, it supports direct modification of `/data` and `/sdcard`.
-  **Note**: This operation will copy all files under the "module's target directory/*". Please ensure the correct folder structure is set and **permissions are properly configured**.
-  Example target directories: `patches/sdcard`, `patches/data/`, `patches/apks`
+  - At the same time, it also supports direct modification of `data` and `sdcard`.
+  **Note**: This operation will copy all files under "target directory within the module/*". Please ensure that the correct folder structure is set up and **permissions are set correctly**.
+  Example of directories within the module: `patches/sdcard/`, `patches/data/`, `patches/apks/`
 
 
-- **Automatic Batch Installation of APKs** `(su)`
-  - A straightforward feature that allows you to batch install APKs with ease.
+- **Automatic batch installation of APKs** `(su)`
+  A simple and straightforward feature that allows you to install multiple APKs in batch.
 
 
-- **Post-Installation Module Patching**
-  - This feature is relatively simple and does not require further elaboration.
+- **Post-installation module patching**
+  Files in the `/patches/modules/` directory will be copied to `data/adb/modules_update/`.
+  Please create a folder with the same ID as the installed module in the `/patches/modules/` directory and place the necessary patch files in it.
 
 
-- **Configuration File: settings.sh**
-  - Supports modifying up to 80% of the module's path variables, language settings, minimum Android API, Magisk version, ksu version, apatch version, and custom scripts.
+- **Configuration file: settings.sh**
+  Supports modifying 80% of the module's path variables, language, disabling logs, setting the minimum Android API, Magisk version, ksu version, apatch version, and custom scripts.
   - **If you encounter installation issues, please try enabling **Compatibility Mode**.**
 
 
