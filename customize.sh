@@ -21,11 +21,11 @@ Aurora_abort() {
     abort "$ERROR_CODE_TEXT: $2"
 }
 version_check() {
-    if [[ $KSU_VER_CODE != "" ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
+    if [[ -n $KSU_VER_CODE  ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
         Aurora_abort "KernelSU: $ERROR_UNSUPPORTED_VERSION $KSU_VER_CODE ($ERROR_VERSION_NUMBER >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)" 1
-    elif [[ -z $APATCH && -z $KSU && $MAGISK_VER_CODE != "" && $MAGISK_VER_CODE -lt $magisk_min_version ]]; then
+    elif [[ -z "$APATCH" && -z "$KSU" && -n "$MAGISK_VER_CODE" ]] && ((MAGISK_VER_CODE < magisk_min_version)); then
         Aurora_abort "Magisk: $ERROR_UNSUPPORTED_VERSION $MAGISK_VER_CODE ($ERROR_VERSION_NUMBER >= $magisk_min_version)" 1
-    elif [[ $APATCH_VER_CODE != "" && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
+    elif [[ -n $APATCH_VER_CODE  && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
         Aurora_abort "APatch: $ERROR_UNSUPPORTED_VERSION $APATCH_VER_CODE ($ERROR_VERSION_NUMBER >= $apatch_min_version)" 1
     elif [[ $API -lt $ANDROID_API ]]; then
         Aurora_abort "Android API: $ERROR_UNSUPPORTED_VERSION $API ($ERROR_VERSION_NUMBER >= $ANDROID_API)" 2
@@ -51,6 +51,17 @@ Aurora_Installer() {
     fi
 }
 Installer() {
+    if [ "$2" != "" ]; then
+        if [[ "$2" = "KSU" ]] && [[ "$KSU" != true ]]; then
+            return
+        fi
+        if [[ "$2" = "APATCH" ]] && [[ "$APATCH" != true ]]; then
+            return
+        fi
+        if [[ "$2" = "MAGISK" ]] && [[ -z "$APATCH" ]] && [[ -z "$KSU" ]] && [[ "$MAGISK_VER_CODE" != "" ]]; then
+            return
+        fi
+    fi
     if [ "$KSU" = true ]; then
         if [ "$KSU_VER_CODE" -le "$ksu_min_normal_version" ]; then
             Installer_Compatibility=true
@@ -159,21 +170,6 @@ key_installer() {
 only_magisk() {
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
-    fi
-}
-magisk_installer() {
-    if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-        Installer "$1"
-    fi
-}
-apd_installer() {
-    if [ "$APATCH" = true ]; then
-        Installer "$1"
-    fi
-}
-ksu_installer() {
-    if [ "$KSU" = true ]; then
-        Installer "$1"
     fi
 }
 CustomShell() {
