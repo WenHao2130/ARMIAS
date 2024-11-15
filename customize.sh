@@ -167,7 +167,7 @@ key_installer() {
         Installer "$2"
     fi
 }
-only_magisk() {
+magisk_denylist_add() {
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
     fi
