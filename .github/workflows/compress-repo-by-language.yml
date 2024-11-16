@@ -2,7 +2,7 @@ name: Compress Repository by Language
 
 on:
   push:
-    branches: [ main ] # 根据需要替换为正确的分支名
+    branches: [ main ] # 根据实际情况替换分支名
 
 jobs:
   compress:
@@ -15,41 +15,29 @@ jobs:
 
       - name: Compress repository for each language version
         run: |
-          # 定义语言版本数组
           languages=("en" "jp" "zh")
           
-          # 备份README文件，稍后恢复
-          cp README.md README_backup.md
-          cp README_JP.md README_JP_backup.md
-          cp README_EN.md README_EN_backup.md
-          
-          # 遍历每个语言版本
           for lang in "${languages[@]}"; do
-            # 复制对应语言文件夹的内容到根目录
-            rsync -av --delete "languages/$lang/" ./ --exclude='languages/'
+            # 删除 languages 文件夹以外的其他语言文件夹
+            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
             
-            # 删除languages文件夹
-            rm -rf languages
+            # 删除所有的 README.md 文件
+            rm -f README.md README_*.md
             
-            # 删除其他语言的README文件，保留当前语言的README（如果需要）
-            if [[ "$lang" != "en" ]]; then rm -f README_EN.md; fi
-            if [[ "$lang" != "jp" ]]; then rm -f README_JP.md; fi
-            if [[ "$lang" != "zh" ]]; then rm -f README.md; fi
+            # 如果 languages/$lang 目录存在，则将其内容移动到根目录
+            if [ -d "languages/$lang" ]; then
+              mv "languages/$lang"/* .
+              rmdir "languages/$lang" # 删除空的语言目录
+            fi
             
-            # 如果需要保留当前语言的README，请重命名README.md
-            # 例如，如果当前是英文版本，将README_backup.md恢复为README.md
-            if [[ "$lang" == "en" ]]; then mv README_backup.md README.md; fi
-            if [[ "$lang" == "jp" ]]; then mv README_JP_backup.md README.md; fi
-            if [[ "$lang" == "zh" ]]; then mv README_backup.md README.md; fi
+            # 如果此时 languages 文件夹为空，则删除它
+            rmdir languages 2>/dev/null || true # 忽略非空文件夹的错误
             
-            # 压缩当前语言版本的仓库
-            zip -r "repo_$lang.zip" . -x *.git* *backup.md
+            # 压缩当前语言版本的仓库，排除 .git 目录和其他不需要的文件
+            zip -r "repo_$lang.zip" . -x *.git* *.md
             
-            # 恢复languages文件夹和其他README文件以供下一次循环使用
-            git checkout -- languages README.md README_JP.md README_EN.md
-            mv README_backup.md README.md # 恢复原始的README.md
-            mv README_JP_backup.md README_JP.md
-            mv README_EN_backup.md README_EN.md
+            # 恢复 languages 文件夹以供下一次循环使用
+            git checkout -- languages
           done
 
       - name: Upload zip files as artifacts
