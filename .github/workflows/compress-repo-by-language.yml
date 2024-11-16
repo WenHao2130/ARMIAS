@@ -42,7 +42,7 @@ jobs:
             fi
             rm -r languages
             - name: Create ZIP file
-            run: 7z a -tzip -mx9 -m0=lzma2 "${LATEST_TAG}_${lang}.zip" . -x'*.git\\*'' -x'*.md' -x'*.zip'
+            run: 7z a -tzip -mx9 -m0=lzma2 "${LATEST_TAG}_${lang}.zip" . -x'*.git\\*' '-x*.md' '-x*.zip'
             git checkout -- languages
           done
 
