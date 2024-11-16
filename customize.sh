@@ -108,35 +108,24 @@ Installer() {
     fi
 }
 initialize_install() {
-    local dir="$1"
-    local all_files=()
-    local delayed_files=()
-
+    local dir="$MODPATH/$1"
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
-        return 1
     fi
+
     while IFS= read -r -d '' file; do
         if [ -f "$file" ]; then
-            all_files+=("$file")
+            Installer "$file"
         fi
     done < <(find "$dir" -maxdepth 1 -type f ! -name "$delayed_pattern" -print0 | sort -z)
 
-    while IFS= read -r -d '' delayed_file; do
-        if [ -f "$delayed_file" ]; then
-            delayed_files+=("$delayed_file")
+    while IFS= read -r -d '' shamiko_file; do
+        if [ -f "$shamiko_file" ]; then
+            Installer "$shamiko_file"
         fi
     done < <(find "$dir" -maxdepth 1 -type f -name "$delayed_pattern" -print0 | sort -z)
 
-    for file in "${all_files[@]}"; do
-        Installer "$file"
-    done
-
-    for file in "${delayed_files[@]}"; do
-        Installer "$file"
-    done
-
-    if [ ${#all_files[@]} -eq 0 ] && [ ${#delayed_files[@]} -eq 0 ]; then
+    if [ -z "$(find "$dir" -maxdepth 1 -type f)" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 }
