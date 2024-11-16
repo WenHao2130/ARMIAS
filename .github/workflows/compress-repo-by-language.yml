@@ -25,25 +25,20 @@ jobs:
           LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
           
           for lang in "${languages[@]}"; do
-            # 创建临时目录用于存放当前语言版本的文件
-            mkdir "temp_$lang"
-            
-            # 复制当前语言版本的文件到临时目录
-            cp -r languages/"$lang"/* "temp_$lang"/ || true # 忽略复制错误，例如目录不存在
-            
-            # 删除临时目录中的不必要文件
-            rm -f "temp_$lang"/README.md "temp_$lang"/README_*.md "temp_$lang"/*.zip
-            
-            # 在临时目录中压缩当前语言版本的仓库，并使用最新 tag 命名
-            zip -r "${LATEST_TAG}_$lang.zip" "temp_$lang"/* -x *.git*
-            
-            # 删除临时目录
-            rm -rf "temp_$lang"
+            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
+            rm -f README.md README_*.md
+            if [ -d "languages/$lang" ]; then
+              mv "languages/$lang"/* .
+              rmdir "languages/$lang" 
+            fi
+            rm -r languages
+            zip -r "$LATEST_TAG_$lang.zip" . -x *.git* *.md *.zip
+            git checkout -- languages
           done
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: compressed-repository-by-language-and-tag
+          name: ${{ steps.latest-tag.outputs.tag }}_all_languages
           path: |
             *.zip
