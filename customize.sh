@@ -97,23 +97,55 @@ Installer() {
 }
 initialize_install() {
     local dir="$MODPATH/$1"
+    local all_files=()  # 存储所有文件的数组（未处理）
+    local delayed_files=()  # 存储需要延迟安装的文件的数组
+    local non_delayed_files=()  # 存储不需要延迟安装的文件的数组
+
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
+        return 1  # 目录不存在，返回错误码
     fi
 
+    # 读取所有文件
     while IFS= read -r -d '' file; do
         if [ -f "$file" ]; then
-            Installer "$file"
+            all_files+=("$file")
         fi
-    done < <(find "$dir" -maxdepth 1 -type f ! -name "*shamiko*" -print0 | sort -z)
+    done < <(find "$dir" -maxdepth 1 -type f -print0)
 
-    while IFS= read -r -d '' shamiko_file; do
-        if [ -f "$shamiko_file" ]; then
-            Installer "$shamiko_file"
+    # 筛选需要延迟安装的文件和不需要延迟安装的文件
+    for file in "${all_files[@]}"; do
+        local is_delayed=0
+        for pattern in "${delayed_patterns[@]}"; do
+            if [[ "$file" == *"$pattern"* ]]; then
+                delayed_files+=("$file")
+                is_delayed=1
+                break
+            fi
+        done
+        if [ "$is_delayed" -eq 0 ]; then
+            non_delayed_files+=("$file")
         fi
-    done < <(find "$dir" -maxdepth 1 -type f -name "*shamiko*" -print0 | sort -z)
+    done
 
-    if [ -z "$(find "$dir" -maxdepth 1 -type f)" ]; then
+    # 对不需要延迟安装的文件进行排序并安装
+    IFS=$'\0'  # 设置输入字段分隔符为NUL字符，以支持文件名中包含特殊字符的情况
+    sorted_non_delayed_files=($(sort <<<"${non_delayed_files[*]}"))
+    unset IFS  # 恢复默认的输入字段分隔符
+    for file in "${sorted_non_delayed_files[@]}"; do
+        Installer "$file"
+    done
+
+    # 对需要延迟安装的文件进行排序并安装
+    IFS=$'\0'  # 同上，设置输入字段分隔符为NUL字符
+    sorted_delayed_files=($(sort <<<"${delayed_files[*]}"))
+    unset IFS  # 恢复默认的输入字段分隔符
+    for file in "${sorted_delayed_files[@]}"; do
+        Installer "$file"
+    done
+
+    # 如果没有安装任何文件，打印警告消息
+    if [ ${#sorted_non_delayed_files[@]} -eq 0 ] && [ ${#sorted_delayed_files[@]} -eq 0 ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 }

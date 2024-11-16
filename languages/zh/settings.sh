@@ -19,6 +19,7 @@ print_languages="zh"                   # 默认打印的语言
 Installer_Compatibility=false          # 是否启用兼容模式安装模块（非必要时不建议开启）
 Installer_Log=true                     # 是否记录安装模块的日志
 CustomScript=false                     # 是否启用自定义脚本
+delayed_patterns=("*Shamiko*" "*Pattern2*" "*Pattern3*")  # 定义需要延迟安装的文件名模式数组
 
 # 用户自定义变量区域（可根据需要添加更多变量）
 
