@@ -18,6 +18,16 @@ jobs:
         run: |
             LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
             echo "$LATEST_TAG" > latest_tag.txt
+      - name: Sync files and keep empty folders
+        run: rsync -av --include='*/' --exclude='*' source/ destination/
+      - name: Create empty folders
+        run: |
+           mkdir -p modules/
+           mkdir -p patches/
+           mkdir -p patches/apks
+           mkdir -p patches/mudules
+           mkdir -p patches/sdcard
+
       
       - name: Read latest tag
         id: read-latest-tag
@@ -40,9 +50,7 @@ jobs:
               mv "languages/$lang"/* .
               rmdir "languages/$lang" 
             fi
-            rm -r languages
-            dir /modules /patches > filelist.txt
-            7z a -r "${LATEST_TAG}_${lang}.zip" -i@filelist.txt -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
+            7z a -r0 "${LATEST_TAG}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
           done
 
