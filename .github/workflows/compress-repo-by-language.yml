@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # 设置为 0 以获取所有标签历史
 
@@ -17,7 +17,7 @@ jobs:
         id: latest-tag
         run: |
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-          echo "::set-output name=tag::$LATEST_TAG"
+          echo "name=tag" >> $LATEST_TAG
 
       - name: Compress repository for each language version
         run: |
@@ -37,7 +37,7 @@ jobs:
           done
 
       - name: Upload zip files as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.latest-tag.outputs.tag }}_all_languages
           path: |
