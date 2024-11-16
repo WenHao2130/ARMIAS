@@ -24,8 +24,9 @@ jobs:
            mkdir -p modules/
            mkdir -p patches/
            mkdir -p patches/apks
-           mkdir -p patches/mudules
+           mkdir -p patches/modules
            mkdir -p patches/sdcard
+           mkdir -p patches/data
 
       
       - name: Read latest tag
