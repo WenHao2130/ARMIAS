@@ -11,10 +11,10 @@ PATCHAPK="/patches/apks"               # 安装APK存储的目录（非系统应
 SDCARD="/storage/emulated/0"           # 用户态sdcard路径
 PATCHMOD="/patches/modules"            # 补丁模块存储的目录
 CustomScriptPath="/custom_script.sh"   # 自定义脚本的路径
+langpath="/languages.txt"              # 语言设置文件路径
 
 
 # 高级设置
-langpath="languages.txt"               # 语言设置文件路径
 print_languages="zh"                   # 默认打印的语言
 Installer_Compatibility=false          # 是否启用兼容模式安装模块（非必要时不建议开启）
 Installer_Log=true                     # 是否记录安装模块的日志

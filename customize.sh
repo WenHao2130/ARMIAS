@@ -96,16 +96,17 @@ Installer() {
     fi
 }
 initialize_install() {
-    if [ ! -d "$MODPATH/$1" ]; then
+    local dir="$MODPATH/$1"
+    if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
     else
-        for file in "$MODPATH/$1"/*; do
+        while IFS= read -r -d '' file; do
             if [ -f "$file" ]; then
                 Installer "$file"
             else
                 Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
             fi
-        done
+        done < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z)
     fi
 }
 patch_default() {

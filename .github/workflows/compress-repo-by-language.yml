@@ -32,7 +32,7 @@ jobs:
               rmdir "languages/$lang" 
             fi
             rm -r languages
-            zip -r "$LATEST_TAG_$lang.zip" . -x *.git* *.md *.zip
+            zip -r "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
             git checkout -- languages
           done
 
