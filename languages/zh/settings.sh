@@ -13,9 +13,11 @@ SDCARD="/storage/emulated/0"           # 用户态sdcard路径
 PATCHMOD="/patches/modules"            # 补丁模块存储的目录
 CustomScriptPath="/custom_script.sh"   # 自定义脚本的路径
 langpath="/languages.txt"              # 语言设置文件路径
+download_destination="/$SDCARD/Download/AuroraNasa_Installer" # 下载路径
 
 
 # 高级设置
+Download_before_install=false          # 是否在安装模块之前从网络下载模块并安装
 Installer_Compatibility=false          # 是否启用兼容模式安装模块（非必要时不建议开启）
 Installer_Log=true                     # 是否记录安装模块的日志
 CustomScript=false                     # 是否启用自定义脚本
@@ -32,3 +34,7 @@ ksu_min_normal_version="99999"         # 要求的KernelSU常规使用最低版�
 apatch_min_version="10657"             # 要求的APatch最低兼容版本
 apatch_min_normal_version="10832"      # 要求的APatch常规使用最低版本
 ANDROID_API="30"                       # 要求的最低安卓API版本
+
+#下载链接 （可根据需要添加更多链接）
+LINKS_1=""
+LINKS_2=""
