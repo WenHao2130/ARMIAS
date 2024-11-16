@@ -27,8 +27,8 @@ jobs:
 
       - name: Compress repository for each language version
         run: |
+          LATEST_TAG=$(cat latest_tag.txt)
           languages=("en" "jp" "zh")
-          LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
           
           for lang in "${languages[@]}"; do
             find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
@@ -42,9 +42,17 @@ jobs:
             git checkout -- languages
           done
 
-      - name: Upload zip files as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.latest-tag.outputs.tag }}_all_languages
-          path: |
-            *.zip
+          - name: Upload zip files as artifacts
+          id: upload-artifacts
+          run: |
+              LATEST_TAG=$(cat latest_tag.txt)
+              ARTIFACT_NAME="${LATEST_TAG}_all_languages"
+              mkdir "$ARTIFACT_NAME"
+              mv *.zip "$ARTIFACT_NAME"/
+              echo "::set-output name=artifact-name::$ARTIFACT_NAME"
+          
+          # 使用本地命令上传 artifacts，因为我们已经有了所需的文件名
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ steps.upload-artifacts.outputs.artifact-name }}
+            path: ${{ steps.upload-artifacts.outputs.artifact-name }}
