@@ -25,6 +25,9 @@ jobs:
             LATEST_TAG=$(cat latest_tag.txt)
             echo "Latest tag is: $LATEST_TAG"
 
+      - name: Action 7z
+        uses: edgarrc/action-7z@v1.0.5
+            
       - name: Compress repository for each language version
         run: |
           LATEST_TAG=$(cat latest_tag.txt)
@@ -38,21 +41,13 @@ jobs:
               rmdir "languages/$lang" 
             fi
             rm -r languages
-            zip -rD "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
+            7z a -tzip -mx9 -m0=lzma2 "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
             git checkout -- languages
           done
 
           - name: Upload zip files as artifacts
-          id: upload-artifacts
-          run: |
-              LATEST_TAG=$(cat latest_tag.txt)
-              ARTIFACT_NAME="${LATEST_TAG}_all_languages"
-              mkdir "$ARTIFACT_NAME"
-              mv *.zip "$ARTIFACT_NAME"/
-              echo "::set-output name=artifact-name::$ARTIFACT_NAME"
-          
-          # 使用本地命令上传 artifacts，因为我们已经有了所需的文件名
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ steps.upload-artifacts.outputs.artifact-name }}
-            path: ${{ steps.upload-artifacts.outputs.artifact-name }}
+            name: ARMIAS_all_languages
+            path: |
+              *.zip
