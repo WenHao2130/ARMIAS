@@ -1,0 +1,53 @@
+name: Compress Repository by Language
+
+on:
+  push:
+    branches: [ main ] # 替换为你想要触发Action的分支名
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1 # 只获取最近的commit，以减少数据下载量
+
+      - name: Compress repository for each language version
+        run: |
+          # 定义要处理的语言版本
+          languages=("en" "jp" "zh")
+          
+          # 遍历每个语言版本
+          for lang in "${languages[@]}"; do
+            # 复制对应语言的文件到根目录
+            cp -r "languages/$lang"/* .
+            
+            # 删除其他语言文件夹（保留当前处理的语言文件夹）
+            for other_lang in "${languages[@]}"; do
+              if [[ "$other_lang" != "$lang" ]]; then
+                rm -rf "languages/$other_lang"
+              fi
+            done
+            
+            # 删除languages文件夹（现为空或只包含当前语言文件夹）
+            rmdir languages || true # 如果languages文件夹不为空，rmdir会失败，但不影响流程
+            
+            # 删除README文件
+            rm -f README.md README_JP.md README_EN.md
+            
+            # 压缩当前语言版本的仓库
+            zip -r "repo_$lang.zip" . -x *.git* # 排除.git目录
+            
+            # 恢复languages文件夹和README文件以供下一次循环使用
+            git checkout -- languages README.md README_JP.md README_EN.md
+          done
+
+      - name: Upload zip files as artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: compressed-repository-by-language
+          path: |
+            repo_en.zip
+            repo_jp.zip
+            repo_zh.zip

@@ -1,15 +1,21 @@
 #!/bin/bash
-if [ ! -f "$MODPATH/settings.sh" ]; then
-    abort "Notfound File!!!(settings.sh)"
-else
-    . "$MODPATH/settings.sh"
-fi
-if [ ! -f "$MODPATH/$langpath" ]; then
-    abort "Notfound File!!!($langpath)"
-else
-    . "$MODPATH/$langpath"
-    eval "lang_$print_languages"
-fi
+main() {
+    if [ ! -f "$MODPATH/settings.sh" ]; then
+        abort "Notfound File!!!(settings.sh)"
+    else
+        . "$MODPATH/settings.sh"
+    fi
+    if [ ! -f "$MODPATH/$langpath" ]; then
+        abort "Notfound File!!!($langpath)"
+    else
+        . "$MODPATH/$langpath"
+        eval "lang_$print_languages"
+    fi
+    version_check
+    initialize_install "$ZIPLIST"
+    patches_install
+    CustomShell
+}
 #######################################################
 Aurora_ui_print() {
     sleep 0.05
@@ -21,11 +27,11 @@ Aurora_abort() {
     abort "$ERROR_CODE_TEXT: $2"
 }
 version_check() {
-    if [[ -n $KSU_VER_CODE  ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
+    if [[ -n $KSU_VER_CODE ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
         Aurora_abort "KernelSU: $ERROR_UNSUPPORTED_VERSION $KSU_VER_CODE ($ERROR_VERSION_NUMBER >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)" 1
     elif [[ -z "$APATCH" && -z "$KSU" && -n "$MAGISK_VER_CODE" ]] && ((MAGISK_VER_CODE < magisk_min_version)); then
         Aurora_abort "Magisk: $ERROR_UNSUPPORTED_VERSION $MAGISK_VER_CODE ($ERROR_VERSION_NUMBER >= $magisk_min_version)" 1
-    elif [[ -n $APATCH_VER_CODE  && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
+    elif [[ -n $APATCH_VER_CODE && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
         Aurora_abort "APatch: $ERROR_UNSUPPORTED_VERSION $APATCH_VER_CODE ($ERROR_VERSION_NUMBER >= $apatch_min_version)" 1
     elif [[ $API -lt $ANDROID_API ]]; then
         Aurora_abort "Android API: $ERROR_UNSUPPORTED_VERSION $API ($ERROR_VERSION_NUMBER >= $ANDROID_API)" 2
@@ -90,10 +96,10 @@ Installer() {
     fi
 }
 initialize_install() {
-    if [ ! -d "$MODPATH/$ZIPLIST" ]; then
-        Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $ZIPLIST"
+    if [ ! -d "$MODPATH/$1" ]; then
+        Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
     else
-        for file in "$MODPATH/$ZIPLIST"/*; do
+        for file in "$MODPATH/$1"/*; do
             if [ -f "$file" ]; then
                 Installer "$file"
             else
@@ -112,6 +118,9 @@ patch_default() {
     else
         Aurora_ui_print "$2 $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
+}
+mv_adb() {
+    su -c mv "$MODPATH/$1" "/data/adb/"
 }
 patches_install() {
     patch_default "$MODPATH" "$PATCHDATA" "/data"
@@ -182,7 +191,5 @@ CustomShell() {
         Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
 }
-version_check
-initialize_install
-patches_install
-CustomShell
+##########################################################
+main
