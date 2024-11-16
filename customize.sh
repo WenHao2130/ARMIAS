@@ -12,7 +12,8 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    initialize_install "$ZIPLIST"
+    initialize_install "$MODPATH/$ZIPLIST"
+    download_and_install
     patches_install
     CustomShell
 }
@@ -107,7 +108,7 @@ Installer() {
     fi
 }
 initialize_install() {
-    local dir="$MODPATH/$1"
+    local dir="$1"
     local all_files=()
     local delayed_files=()
 
@@ -175,6 +176,27 @@ patches_install() {
         Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
+check_network() {
+    ping -c 1 www.baidu.com >/dev/null 2>&1
+    local baidu_status=$?
+    ping -c 1 github.com >/dev/null 2>&1
+    local github_status=$?
+    ping -c 1 google.com >/dev/null 2>&1
+    local google_status=$?
+
+    if [ $baidu_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
+        return 0
+    elif [ $google_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (Google)"
+        return 0
+    elif [ $github_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (GitHub)"
+        return 0
+    else
+        return 1
+    fi
+}
 key_select() {
     key_pressed=""
     while true; do
@@ -206,6 +228,74 @@ key_installer() {
     else
         Installer "$2"
     fi
+}
+github_get_url() {
+    local owner_repo="$1"
+    local SEARCH_CHAR="$2"
+    local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
+    local TMP_FILE="$MODPATH/TEMP/latest_release_info.json"
+    wget -qO- "$API_URL" >"$TMP_FILE"
+    DOWNLOAD_URLS=$(grep -oP '"browser_download_url": "\K[^"]+' "$TMP_FILE")
+    DESIRED_DOWNLOAD_URL=""
+    while IFS= read -r url; do
+        if [[ $url == *"$SEARCH_CHAR"* ]]; then
+            DESIRED_DOWNLOAD_URL=$url
+            break
+        fi
+    done <<<"$DOWNLOAD_URLS"
+    rm -f "$TMP_FILE"
+}
+download_file() {
+    local link=$1
+    local filename=$(basename "$link")
+    local local_path="$download_destination/$filename"
+    local retry_count=0
+
+    while [ $retry_count -lt $max_retries ]; do
+        if wget -q "$link" -O "$local_path.tmp"; then
+            mv "$local_path.tmp" "$local_path"
+            Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
+            return 0
+        else
+            retry_count=$((retry_count + 1))
+            Aurora_ui_print "$DOWNLOAD_FAILED $link. $RETRY_DOWNLOAD $retry_count/$max_retries..."
+        fi
+    done
+
+    Aurora_ui_print "$DOWNLOAD_FAILED $link"
+    Aurora_ui_print "$KEY_VOLUME + $PRESS_VOLUME_RETRY"
+    Aurora_ui_print "$KEY_VOLUME - $PRESS_VOLUME_SKIP"
+    key_select
+    if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
+        download_file "$1"
+    fi
+    return 1
+}
+initialize_download() {
+    if ! check_network; then
+        Aurora_ui_print "$CHECK_NETWORK"
+        return
+    fi
+
+    for var in $(env | grep '^LINKS_' | cut -d= -f1); do
+        link=$(eval echo \$"$var")
+        if [ -n "$link" ]; then
+            download_file "$link"
+        fi
+    done
+}
+download_and_install() {
+    if [[ "$Download_before_install" == "false" ]]; then
+        return
+    elif [[ "$Download_before_install" == "true" ]]; then
+        initialize_download
+        initialize_install "$download_destination/"
+    else
+        Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
+}
+aurora_flash_boot() {
+    find_boot_image
+    flash_image "$1" "$BOOTIMAGE"
 }
 magisk_denylist_add() {
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
