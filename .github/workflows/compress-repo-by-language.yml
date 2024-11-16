@@ -41,7 +41,7 @@ jobs:
               rmdir "languages/$lang" 
             fi
             rm -r languages
-            7z a -tzip "${LATEST_TAG}_${lang}.zip" -r -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
+            7z a -r -tzip "${LATEST_TAG}_${lang}.zip" -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
           done
 
