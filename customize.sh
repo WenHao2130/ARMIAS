@@ -94,59 +94,48 @@ Installer() {
     else
         Aurora_abort "Installer_Compatibility$ERROR_INVALID_LOCAL_VALUE" 4
     fi
+    if [[ "$fix_ksu_install" == "true" ]] && [[ "$KSU" = true ]] && [[ -z "$KSU_step_skip" ]]; then
+        temp_dir="$MODPATH/TEMP_KSU"
+        mkdir -p "$temp_dir"
+        unzip -d "$temp_dir" "$1" >/dev/null 2>&1
+        KSU_Installer_TEMP_ID=$(awk -F= '/^id=/ {print $2}' "$temp_dir/module.prop")
+        zip -r "$MODPATH/TEMP_KSU/temp.zip" "$SECURE_DIR/modules_updata/$KSU_Installer_TEMP_ID"/* >/dev/null 2>&1
+        KSU_step_skip=true
+        Installer "$MODPATH/TEMP_KSU/temp.zip" KSU
+        rm -rf "$temp_dir"
+        KSU_step_skip=""
+    fi
 }
 initialize_install() {
     local dir="$MODPATH/$1"
-    local delayed_patterns=("*Shamiko*" "*Pattern2*" "*Pattern3*")  # 定义需要延迟安装的文件名模式数组
-    local all_files=()  # 存储所有文件的数组
-    local delayed_files=()  # 存储需要延迟安装的文件的数组
-    local non_delayed_files=()  # 存储不需要延迟安装的文件的数组
-    local temp_file=$(mktemp)  # 创建一个临时文件用于排序
+    local all_files=()
+    local delayed_files=()
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
-        return 1  # 目录不存在，返回错误码
+        return 1
     fi
-
-    # 读取并排序所有文件
-    find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_file"
-
-    # 筛选需要延迟安装的文件和不需要延迟安装的文件
     while IFS= read -r -d '' file; do
-        local is_delayed=0
-        for pattern in "${delayed_patterns[@]}"; do
-            if [[ "$file" == *"$pattern"* ]]; then
-                delayed_files+=("$file")
-                is_delayed=1
-                break
-            fi
-        done
-        if [ "$is_delayed" -eq 0 ]; then
-            non_delayed_files+=("$file")
+        if [ -f "$file" ]; then
+            all_files+=("$file")
         fi
-    done < "$temp_file"
+    done < <(find "$dir" -maxdepth 1 -type f ! -name "$delayed_pattern" -print0 | sort -z)
 
-    # 安装文件（逻辑与之前相同）
-     IFS=$'\0'  # 设置输入字段分隔符为NUL字符，以支持文件名中包含特殊字符的情况
-    sorted_non_delayed_files=($(sort <<<"${non_delayed_files[*]}"))
-    unset IFS  # 恢复默认的输入字段分隔符
-    for file in "${sorted_non_delayed_files[@]}"; do
+    while IFS= read -r -d '' delayed_file; do
+        if [ -f "$delayed_file" ]; then
+            delayed_files+=("$delayed_file")
+        fi
+    done < <(find "$dir" -maxdepth 1 -type f -name "$delayed_pattern" -print0 | sort -z)
+
+    for file in "${all_files[@]}"; do
         Installer "$file"
     done
 
-    # 对需要延迟安装的文件进行排序并安装
-    IFS=$'\0'  # 同上，设置输入字段分隔符为NUL字符
-    sorted_delayed_files=($(sort <<<"${delayed_files[*]}"))
-    unset IFS  # 恢复默认的输入字段分隔符
-    for file in "${sorted_delayed_files[@]}"; do
+    for file in "${delayed_files[@]}"; do
         Installer "$file"
     done
 
-    # 清理临时文件
-    rm -f "$temp_file"
-
-    # 如果没有安装任何文件，打印警告消息
-    if [ ${#non_delayed_files[@]} -eq 0 ] && [ ${#delayed_files[@]} -eq 0 ]; then
+    if [ ${#all_files[@]} -eq 0 ] && [ ${#delayed_files[@]} -eq 0 ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 }

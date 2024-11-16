@@ -3,6 +3,7 @@
 # 模块存储的基础路径
 # MODPATH
 
+print_languages="zh"                   # 默认打印的语言
 # 各个目录的路径定义
 ZIPLIST="/modules"                     # zip模块存储的目录
 PATCHDATA="/patches/data"              # 补丁DATA存储的目录
@@ -15,11 +16,11 @@ langpath="/languages.txt"              # 语言设置文件路径
 
 
 # 高级设置
-print_languages="zh"                   # 默认打印的语言
 Installer_Compatibility=false          # 是否启用兼容模式安装模块（非必要时不建议开启）
 Installer_Log=true                     # 是否记录安装模块的日志
 CustomScript=false                     # 是否启用自定义脚本
-delayed_patterns=("*Shamiko*" "*Pattern2*" "*Pattern3*")  # 定义需要延迟安装的文件名模式数组
+fix_ksu_install=false                  # 尝试修复KernelSU可能会出现的安装问题（非必要时不建议开启，开启会减慢运行速度，并且可能会出现未知问题）
+delayed_pattern="*Shamiko*"            # 定义需要延迟安装包含的文件名
 
 # 用户自定义变量区域（可根据需要添加更多变量）
 
