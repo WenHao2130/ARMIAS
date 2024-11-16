@@ -18,8 +18,7 @@ jobs:
         run: |
             LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
             echo "$LATEST_TAG" > latest_tag.txt
-      - name: Sync files and keep empty folders
-        run: rsync -av --include='*/' --exclude='*' modules/ patches/apks/ patches/mudules/ patches/sdcard/
+
       - name: Create empty folders
         run: |
            mkdir -p modules/
