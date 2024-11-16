@@ -17,7 +17,8 @@ jobs:
         id: latest-tag
         run: |
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-          echo "name=tag" >> $LATEST_TAG
+          echo "$LATEST_TAG" > latest_tag.txt
+          LATEST_TAG=$(cat latest_tag.txt)
 
       - name: Compress repository for each language version
         run: |
