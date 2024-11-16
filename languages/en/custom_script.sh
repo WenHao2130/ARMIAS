@@ -2,42 +2,61 @@
 # -----------------
 # This script extends the functionality of the default and setup scripts, allowing direct use of their variables and functions.
 
+# When calling functions without specifying $MODPATH, it will be automatically prefixed. Thus, there is no need to manually add it.
+# $MODPATH can be replaced with any path, but please ensure the correctness of the path.
+
 # Overview of Custom Features
 # --------------
-# 1. Aesthetic Printing: Use Aurora_ui_print "content to print" for visually appealing content display.
-# 2. Module Installation: The initialize_install function automates the installation of all modules in the $ZIPLIST directory.
+# 1. Aesthetic Printing: Use Aurora_ui_print "content to be printed" for aesthetic content display.
+# 2. Module Installation: The initialize_install "folder path" function allows automatic installation of all modules in the target directory.
 # 3. Patch Installation: The patches_install function iterates through and installs all patches.
 
 # Example: Installing a Single Module
 # -----------------
-# Use Installer "module_path.zip" to install a specific module.
+# Installer "$MODPATH/module_path.zip" # to install a specified module.
+# For specific root solutions, use Installer "$MODPATH/module_path.zip" "KSU or APATCH or magisk" to automatically execute installation when the target environment is detected; otherwise, installation will not be performed.
 
 # Example: Compatibility Mode Installation
 # ----------------
-# To install a module in compatibility mode, use Installer_Compatibility_mode "module_path.zip".
+# To install a module in compatibility mode, use Installer_Compatibility_mode "$MODPATH/module_path.zip".
 
 # Example: Volume Key Selection for Module Installation
 # ---------------------
-# Use key_installer "up_key_module_path.zip" "down_key_module_path.zip" "up_key_module_name" "down_key_module_name" to select and install modules using volume keys.
-# If module names are not provided, relevant prompts will not be displayed during installation.
+# Use key_installer "$MODPATH/upper_key_module_path.zip" "$MODPATH/lower_key_module_path.zip" "Upper key module name to be printed" "Lower key module name to be printed" # to select the module to install via volume keys.
+# If the module name is not provided, relevant prompts will not be displayed during installation.
+
+# Example: Getting the Latest Release File Link from a Github Repository
+# github_get_url "repository_owner/repository_name" "filename_to_be_included_in_release"
+# The output link address is stored in the $DESIRED_DOWNLOAD_URL variable.
+
+# Example: Downloading a Single File
+# download_file "file_link"
 
 # Example: Detecting Volume Key Selection
 # ------------------
-# After calling the key_select function, the user's selection made through the volume keys can be accessed via the $key_pressed variable.
+# After calling key_select, you can get the user's selection result through volume keys via the $key_pressed variable.
 
-# Dedicated Installation Functions
-# ------------
-# For specific components, the following functions can be used for installation:
-# - magisk_installer "module_path.zip"
-# - apd_installer "module_path.zip"
-# - ksu_installer "module_path.zip"
-# These functions automatically execute installation when the target environment is detected.
+# Arbitrary Patch
+# patch_default "$MODPATH" "original_path" "patch_path"
+# Of course, you can replace $MODPATH with any path to call paths outside the module.
 
-# Example: Patching Installed Modules
+# Example: Patching an Already Installed Module
 # -----------------
 # To apply patches to already installed modules, use the following command:
 # cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
 
-# Important Notes
+# Example: Moving a Single File to /data/adb/
+# -----------------
+# mv_adb "file_path"
+
+# Example: Adding to Magisk's Denylist
+# -----------------
+# magisk_denylist_add "package_name" # Only supported by Magisk
+
+# Example: Flashing the Boot Partition
+# -----------------
+# aurora_flash_boot "file_path"
+
+# Notes
 # ------
-# Please avoid using the exit and abort functions in this script to prevent accidental interruption of script execution.
+# Please avoid using the exit and abort functions in this script to prevent unexpected interruption of script execution.
