@@ -21,20 +21,39 @@ jobs:
 
       - name: Compress repository for each language version
         run: |
-          languages=("en" "jp" "zh")
-          LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
-          
-          for lang in "${languages[@]}"; do
-            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
-            rm -f README.md README_*.md
-            if [ -d "languages/$lang" ]; then
-              mv "languages/$lang"/* .
-              rmdir "languages/$lang" 
-            fi
-            rm -r languages
-            zip -r "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
-            git checkout -- languages
-          done
+            languages=("en" "jp" "zh")
+            LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
+            
+            for lang in "${languages[@]}"; do
+              # Step 1: Create a temporary list of all directories
+              find . -type d -print > directories.txt
+              
+              # Your existing code to remove non-target languages and other files
+              find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
+              rm -f README.md README_*.md
+              if [ -d "languages/$lang" ]; then
+                mv "languages/$lang"/* .
+                rmdir "languages/$lang" 
+              fi
+              rm -r languages
+              
+              # Step 2: Use the temporary list to ensure all directories are added to the zip
+              while IFS= read -r dir; do
+                # Check if the directory is empty and add it to the zip explicitly if it is
+                if [ -d "$dir" ] && [ "$(ls -A $dir)" = "" ]; then
+                  zip -r "${LATEST_TAG}_${lang}.zip" "$dir" -x *.git* *.md *.zip
+                fi
+              done < directories.txt
+              
+              # Add all other files and non-empty directories to the zip
+              zip -r "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
+              
+              # Step 3: Remove the temporary list of directories
+              rm directories.txt
+              
+              # Restore the 'languages' directory for the next iteration
+              git checkout -- languages
+            done
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v3
