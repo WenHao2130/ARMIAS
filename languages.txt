@@ -17,6 +17,14 @@ lang_en() {
     INSTALLER_LOG_DISABLED="Installer_Log is disabled. No module installation logs will be output"
     CUSTOM_SCRIPT_DISABLED="CustomScript is disabled. Custom scripts will not be executed."
     CUSTOM_SCRIPT_ENABLED="CustomScript is enabled. Executing custom scripts."
+    INTERNET_CONNET="Internet Available"
+    DOWNLOAD_SUCCEEDED="File Downloaded"
+    DOWNLOAD_FAILED="Download Failed"
+    RETRY_DOWNLOAD="Retry"
+    SKIP_DOWNLOAD="Skip"
+    CHECK_NETWORK="No internet connection. Please check your network connection."
+    PRESS_VOLUME_RETRY="Press volume key to retry"
+    PRESS_VOLUME_SKIP="Press volume key to skip"
 }
 lang_zh() {
     ERROR_TEXT="错误"
@@ -37,6 +45,14 @@ lang_zh() {
     INSTALLER_LOG_DISABLED="已禁用Installer_Log。将不输出模块安装日志"
     CUSTOM_SCRIPT_DISABLED="已禁用CustomScript。将不执行自定义脚本。"
     CUSTOM_SCRIPT_ENABLED="已启用CustomScript。正在执行自定义脚本。"
+    INTERNET_CONNET="网络可用"
+    DOWNLOAD_SUCCEEDED="已下载文件"
+    DOWNLOAD_FAILED="下载失败"
+    RETRY_DOWNLOAD="重试"
+    SKIP_DOWNLOAD="跳过"
+    CHECK_NETWORK="没有网络连接 请检查网络连接"
+    PRESS_VOLUME_RETRY="继续重试"
+    PRESS_VOLUME_SKIP="跳过"
 }
 lang_jp() {
     ERROR_TEXT="エラー"
@@ -57,4 +73,12 @@ lang_jp() {
     INSTALLER_LOG_DISABLED="Installer_Logが無効化されました。モジュールのインストールログは出力されません"
     CUSTOM_SCRIPT_DISABLED="CustomScriptが無効化されました。カスタムスクリプトは実行されません。"
     CUSTOM_SCRIPT_ENABLED="CustomScriptが有効化されました。カスタムスクリプトを実行中です。"
+    INTERNET_CONNET="ネットワークが利用可能"
+    DOWNLOAD_SUCCEEDED="ファイルをダウンロードしました"
+    DOWNLOAD_FAILED="ダウンロードに失敗しました"
+    RETRY_DOWNLOAD="再試行"
+    SKIP_DOWNLOAD="スキップ"
+    CHECK_NETWORK="ネットワークに接続されていません。ネットワーク接続を確認してください。"
+    PRESS_VOLUME_RETRY="ボリュームキーを押して再試行"
+    PRESS_VOLUME_SKIP="ボリュームキーを押してスキップ"
 }
