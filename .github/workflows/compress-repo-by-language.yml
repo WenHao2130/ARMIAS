@@ -19,37 +19,22 @@ jobs:
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "::set-output name=tag::$LATEST_TAG"
 
-          - name: Compress repository for each language version
-          run: |
-            languages=("en" "jp" "zh")
-            LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
-            
-            for lang in "${languages[@]}"; do
-              find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
-              rm -f README.md README_*.md
-              if [ -d "languages/$lang" ]; then
-                mv "languages/$lang"/* .
-                rmdir "languages/$lang" 2>/dev/null || true # Suppress 'directory not empty' error
-              fi
-              rm -r languages 2>/dev/null || true # Suppress 'cannot remove' error if languages is already removed
-              
-              # Find and zip empty directories
-              find . -type d -empty -exec sh -c '
-                zip -r "${LATEST_TAG}_${lang}.tmp.zip" "{}" -x *.git* *.md *.zip
-                touch "${1}/.emptyfile"
-                zip -ru "${LATEST_TAG}_${lang}.tmp.zip" "${1}/.emptyfile"
-                zip -rd "${LATEST_TAG}_${lang}.tmp.zip" "${1}/.emptyfile"
-              ' _ {} \;
-              
-              # Zip all other files and directories
-              zip -rq "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip *.tmp.zip
-              
-              # Merge the empty directories zip with the main zip
-              zip -Aq "${LATEST_TAG}_${lang}.zip" "${LATEST_TAG}_${lang}.tmp.zip"
-              rm "${LATEST_TAG}_${lang}.tmp.zip"
-              
-              git checkout -- languages README.md README_*.md
-            done
+      - name: Compress repository for each language version
+        run: |
+          languages=("en" "jp" "zh")
+          LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
+          
+          for lang in "${languages[@]}"; do
+            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
+            rm -f README.md README_*.md
+            if [ -d "languages/$lang" ]; then
+              mv "languages/$lang"/* .
+              rmdir "languages/$lang" 
+            fi
+            rm -r languages
+            zip -rD "${LATEST_TAG}_${lang}.zip" . -x *.git* *.md *.zip
+            git checkout -- languages
+          done
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v3
