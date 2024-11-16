@@ -46,4 +46,4 @@ jobs:
         with:
           name: compressed-repository-by-language-and-tag
           path: |
-            *.zip # 上传所有生成的 zip 文件
+            *.zip
