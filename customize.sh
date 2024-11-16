@@ -281,6 +281,7 @@ download_and_install() {
         initialize_install "$download_destination/"
     else
         Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
+    fi
 }
 aurora_flash_boot() {
     find_boot_image
