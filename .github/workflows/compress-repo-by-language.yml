@@ -11,40 +11,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1
+          fetch-depth: 0 # 获取所有历史记录，以便能够找到最新的 tag
+
+      - name: Get latest tag
+        id: latest-tag
+        run: |
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "::set-output name=tag::$LATEST_TAG"
 
       - name: Compress repository for each language version
         run: |
           languages=("en" "jp" "zh")
+          LATEST_TAG=${{ steps.latest-tag.outputs.tag }}
           
           for lang in "${languages[@]}"; do
-            # 删除 languages 文件夹以外的其他语言文件夹
-            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
-            
-            # 删除所有的 README.md 文件
-            rm -f README.md README_*.md
-            
-            # 如果 languages/$lang 目录存在，则将其内容移动到根目录
             if [ -d "languages/$lang" ]; then
-              mv "languages/$lang"/* .
-              rmdir "languages/$lang" # 删除空的语言目录
+              rm -f "languages/$lang"/README.md "languages/$lang"/README_*.md
+              
+              zip -r "${LATEST_TAG}_${lang}.zip" "languages/$lang" -x *.git*
             fi
-            
-            # 如果此时 languages 文件夹为空，则删除它
-            rmdir languages 2>/dev/null || true # 忽略非空文件夹的错误
-            
-            # 压缩当前语言版本的仓库，排除 .git 目录和其他不需要的文件
-            zip -r "repo_$lang.zip" . -x *.git* *.md
-            
-            # 恢复 languages 文件夹以供下一次循环使用
-            git checkout -- languages
           done
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: compressed-repository-by-language
+          name: compressed-repository-by-language-and-tag
           path: |
-            repo_en.zip
-            repo_jp.zip
-            repo_zh.zip
+            *.zip
