@@ -208,8 +208,8 @@ key_select() {
 }
 key_installer() {
     if [ "$3" != "" ] && [ "$4" != "" ]; then
-        Aurora_ui_print "$KEY_VOLUME_TEXTS + $KEY_VOLUME_Installer_TEXTS $3"
-        Aurora_ui_print "$KEY_VOLUME_TEXTS - $KEY_VOLUME_Installer_TEXTS $4"
+        Aurora_ui_print "$KEY_VOLUME + $KEY_VOLUME_INSTALL_MODULE $3"
+        Aurora_ui_print "$KEY_VOLUME - $KEY_VOLUME_INSTALL_MODULE $4"
     fi
     key_select
     if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
