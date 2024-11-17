@@ -225,13 +225,17 @@ github_get_url() {
     local TMP_FILE="$MODPATH/TEMP/latest_release_info.json"
     wget -qO- "$API_URL" >"$TMP_FILE"
     DOWNLOAD_URLS=$(grep -oP '"browser_download_url": "\K[^"]+' "$TMP_FILE")
+    local tmpfile="$MODPATH/TEMP/mktemp_download_urls.txt"
+
+    echo "$DOWNLOAD_URLS" >"$tmpfile"
     DESIRED_DOWNLOAD_URL=""
     while IFS= read -r url; do
         if [[ $url == *"$SEARCH_CHAR"* ]]; then
             DESIRED_DOWNLOAD_URL=$url
             break
         fi
-    done <<<"$DOWNLOAD_URLS"
+    done <"$tmpfile"
+    rm "$tmpfile"
     rm -f "$TMP_FILE"
 }
 download_file() {
