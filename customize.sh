@@ -108,7 +108,7 @@ Installer() {
     fi
 }
 initialize_install() {
-    local dir="$MODPATH/$1"
+    local dir="$1"
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
     fi
