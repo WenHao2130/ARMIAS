@@ -45,17 +45,17 @@
 # To apply patches to already installed modules, use the following command:
 # cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
 
-# Example: Moving a Single File to /data/adb/
+# Example: Move multiple files to /data/adb/
 # -----------------
-# mv_adb "file_path"
+# mv_adb "directory path"
 
 # Example: Adding to Magisk's Denylist
 # -----------------
 # magisk_denylist_add "package_name" # Only supported by Magisk
 
-# Example: Flashing the Boot Partition
+# Example: Flash the boot partition
 # -----------------
-# aurora_flash_boot "file_path"
+# aurora_flash_boot "file path"
 
 # Notes
 # ------

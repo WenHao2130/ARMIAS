@@ -153,7 +153,7 @@ patch_default() {
     fi
 }
 mv_adb() {
-    su -c mv "$MODPATH/$1" "/data/adb/"
+    su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 patches_install() {
     patch_default "$MODPATH" "$PATCHDATA" "/data"

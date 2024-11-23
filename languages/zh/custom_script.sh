@@ -45,9 +45,9 @@
 # 若需将补丁应用于已安装的模块，可以使用如下命令：
 # cp -r "$MODPATH/$PATCHMOD"/* "$SECURE_DIR/modules/"
 
-# 示例：移动单个文件至/data/adb/
+# 示例：移动多个文件至/data/adb/
 # -----------------
-# mv_adb "文件路径"
+# mv_adb "文件夹路径"
 
 # 示例：添加到magisk的denylist
 # -----------------
