@@ -42,22 +42,42 @@ Installer_Compatibility_mode() {
     MODPATHBACKUP=$MODPATH
     # shellcheck disable=SC2034
     for ZIPFILE in $1; do
-        install_module $redirect_output
+        if [[ "$Installer_Log" == "false" ]]; then
+            install_module >/dev/null 2>&1
+        elif [[ "$Installer_Log" == "true" ]]; then
+            install_module
+        fi
     done
     MODPATH=$MODPATHBACKUP
 }
 Aurora_Installer() {
-    if [ "$KSU" = true ]; then
-        ksud module install "$1" $redirect_output
-    elif [ "$APATCH" = true ]; then
-        apd module install "$1" $redirect_output
-    elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-        magisk --install-module "$1" $redirect_output
-    else
-        Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
+    if [[ "$Installer_Log" == "false" ]]; then
+        Aurora_ui_print "$INSTALLER_LOG_DISABLED"
+        if [ "$KSU" = true ]; then
+            ksud module install "$1" >/dev/null 2>&1
+        elif [ "$APATCH" = true ]; then
+            apd module install "$1" >/dev/null 2>&1
+        elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+            magisk --install-module "$1" >/dev/null 2>&1
+        else
+            Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
+        fi
+    elif [[ "$Installer_Log" == "true" ]]; then
+        if [ "$KSU" = true ]; then
+            ksud module install "$1"
+        elif [ "$APATCH" = true ]; then
+            apd module install "$1"
+        elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+            magisk --install-module "$1"
+        else
+            Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
+        fi
     fi
 }
 Installer() {
+    if [[ "$Installer_Log" != "false" ]] || [[ "$Installer_Log" != "true" ]]; then
+        Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
+    fi
     if [ "$2" != "" ]; then
         if [[ "$2" = "KSU" ]] && [[ "$KSU" != true ]]; then
             return
@@ -79,14 +99,6 @@ Installer() {
             Installer_Compatibility=true
             Aurora_ui_print "APatch: $WARN_FORCED_COMPATIBILITY_MODE"
         fi
-    fi
-    if [[ "$Installer_Log" == "false" ]]; then
-        Aurora_ui_print "$INSTALLER_LOG_DISABLED"
-        redirect_output='> /dev/null 2>&1'
-    elif [[ "$Installer_Log" == "true" ]]; then
-        Aurora_ui_print "$INSTALLER_START_LOG_ENABLED"
-    else
-        Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [[ "$Installer_Compatibility" == "false" ]]; then
         Aurora_Installer "$1"
