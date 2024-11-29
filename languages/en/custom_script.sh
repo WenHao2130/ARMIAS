@@ -8,7 +8,7 @@
 # Overview of Custom Features
 # --------------
 # 1. Aesthetic Printing: Use Aurora_ui_print "content to be printed" for aesthetic content display.
-# 2. Module Installation: The initialize_install "folder path" function allows automatic installation of all modules in the target directory.
+# 2. Module Installation: The initialize_install "$MODPATH/folder path" function allows automatic installation of all modules in the target directory.
 # 3. Patch Installation: The patches_install function iterates through and installs all patches.
 
 # Example: Installing a Single Module

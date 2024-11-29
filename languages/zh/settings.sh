@@ -5,13 +5,13 @@
 
 print_languages="zh"                   # 默认打印的语言
 # 各个目录的路径定义
-ZIPLIST="/modules"                     # zip模块存储的目录
-PATCHDATA="/patches/data"              # 补丁DATA存储的目录
-PATCHSDCARD="/patches/sdcard"          # 补丁sdcard存储的目录
-PATCHAPK="/patches/apks"               # 安装APK存储的目录（非系统应用）
+ZIPLIST="/files/modules"                     # zip模块存储的目录
+PATCHDATA="/files/patches/data"              # 补丁DATA存储的目录
+PATCHSDCARD="/files/patches/sdcard"          # 补丁sdcard存储的目录
+PATCHAPK="/files/patches/apks"               # 安装APK存储的目录（非系统应用）
 SDCARD="/storage/emulated/0"           # 用户态sdcard路径
-PATCHMOD="/patches/modules"            # 补丁模块存储的目录
-CustomScriptPath="/custom_script.sh"   # 自定义脚本的路径
+PATCHMOD="/files/patches/modules"            # 补丁模块存储的目录
+CustomScriptPath="/settings/custom_script.sh"   # 自定义脚本的路径
 langpath="/languages.txt"              # 语言设置文件路径
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # 下载路径
 max_retries="3"                       # 下载重试次数

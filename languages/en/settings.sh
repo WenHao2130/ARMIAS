@@ -3,15 +3,15 @@
 # Base path for module storage
 # MODPATH
 
-print_languages="zh"                   # Default language for printing
+print_languages="en"                   # Default language for printing
 # Path definitions for various directories
-ZIPLIST="/modules"                     # Directory for storing zip modules
-PATCHDATA="/patches/data"              # Directory for storing patch DATA
-PATCHSDCARD="/patches/sdcard"          # Directory for storing sdcard patches
-PATCHAPK="/patches/apks"               # Directory for storing installed APKs (non-system apps)
+ZIPLIST="/files/modules"                     # Directory for storing zip modules
+PATCHDATA="/files/patches/data"              # Directory for storing patch DATA
+PATCHSDCARD="/files/patches/sdcard"          # Directory for storing sdcard patches
+PATCHAPK="/files/patches/apks"               # Directory for storing installed APKs (non-system apps)
 SDCARD="/storage/emulated/0"           # Path to user-space sdcard
-PATCHMOD="/patches/modules"            # Directory for storing patch modules
-CustomScriptPath="/custom_script.sh"   # Path to custom script
+PATCHMOD="/files/patches/modules"            # Directory for storing patch modules
+CustomScriptPath="/settings/custom_script.sh"   # Path to custom script
 langpath="/languages.txt"              # Path to language settings file
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # Download path
 max_retries="3"                      # Maximum number of download retries

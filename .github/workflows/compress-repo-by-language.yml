@@ -21,13 +21,13 @@ jobs:
 
       - name: Create empty folders
         run: |
-           mkdir -p modules/
-           mkdir -p patches/
-           mkdir -p patches/apks
-           mkdir -p patches/modules
-           mkdir -p patches/sdcard
-           mkdir -p patches/data
-
+           mkdir -p files/modules/
+           mkdir -p files/patches/
+           mkdir -p files/patches/apks
+           mkdir -p files/patches/modules
+           mkdir -p files/patches/sdcard
+           mkdir -p files/patches/data
+           mkdir -p settings/
       
       - name: Read latest tag
         id: read-latest-tag
@@ -48,6 +48,8 @@ jobs:
             rm -f README.md README_*.md
             if [ -d "languages/$lang" ]; then
               mv "languages/$lang"/* .
+              mv "languages/$lang"/custom_script.sh ./settings/
+              rm -rf ./custom_script.sh
               rmdir "languages/$lang" 
               rmdir languages
             fi

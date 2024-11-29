@@ -3,15 +3,15 @@
 # 模块の基本保存パス
 # MODPATH
 
-print_languages="zh"                   # デフォルトの印刷言語
+print_languages="jp"                   # デフォルトの印刷言語
 # 各ディレクトリのパス定義
-ZIPLIST="/modules"                     # zip模块の保存ディレクトリ
-PATCHDATA="/patches/data"              # パッチDATAの保存ディレクトリ
-PATCHSDCARD="/patches/sdcard"          # パッチsdcardの保存ディレクトリ
-PATCHAPK="/patches/apks"               # APKのインストールディレクトリ（非システムアプリ）
+ZIPLIST="/files/modules"                     # zip模块の保存ディレクトリ
+PATCHDATA="/files/patches/data"              # パッチDATAの保存ディレクトリ
+PATCHSDCARD="/files/patches/sdcard"          # パッチsdcardの保存ディレクトリ
+PATCHAPK="/files/patches/apks"               # APKのインストールディレクトリ（非システムアプリ）
 SDCARD="/storage/emulated/0"           # ユーザーステートsdcardのパス
-PATCHMOD="/patches/modules"            # パッチ模块の保存ディレクトリ
-CustomScriptPath="/custom_script.sh"   # カスタムスクリプトのパス
+PATCHMOD="/files/patches/modules"            # パッチ模块の保存ディレクトリ
+CustomScriptPath="/settings/custom_script.sh"   # カスタムスクリプトのパス
 langpath="/languages.txt"              # 言語設定ファイルのパス
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # ダウンロードパス
 max_retries="3"                       # ダウンロードの再試行回数
