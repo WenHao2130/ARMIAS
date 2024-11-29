@@ -1,9 +1,9 @@
 #!/bin/bash
 main() {
-    if [ ! -f "$MODPATH/settings.sh" ]; then
+    if [ ! -f "$MODPATH/settings/settings.sh" ]; then
         abort "Notfound File!!!(settings.sh)"
     else
-        . "$MODPATH/settings.sh"
+        . "$MODPATH/settings/settings.sh"
     fi
     if [ ! -f "$MODPATH/$langpath" ]; then
         abort "Notfound File!!!($langpath)"
