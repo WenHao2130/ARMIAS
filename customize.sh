@@ -12,6 +12,8 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
+    set_permissions_777 "$MODPATH/curl"
+    set_permissions_777 "$MODPATH/jq"
     initialize_install "$MODPATH/$ZIPLIST"
     download_and_install
     patches_install
@@ -176,6 +178,9 @@ patches_install() {
     else
         Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
+}
+set_permissions_777() {
+    set_perm "$1" 0 0 0777 0777 u:object_r:system_file:s0
 }
 check_network() {
     ping -c 1 www.baidu.com >/dev/null 2>&1
