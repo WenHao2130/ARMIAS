@@ -290,6 +290,7 @@ download_and_install() {
     fi
 }
 aurora_flash_boot() {
+    get_flags
     find_boot_image
     flash_image "$1" "$BOOTIMAGE"
 }
