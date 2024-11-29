@@ -56,13 +56,13 @@ jobs:
               rmdir "languages/$lang" 
               rmdir languages
             fi
-            7z a -r -mx9 "${LATEST_TAG}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
+            7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
           done
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ARMIAS_all_languages_v
+          name: ARMIAS_all_languages_versions
           path: |
             *.zip
