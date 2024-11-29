@@ -50,8 +50,8 @@ jobs:
               cp "languages/$lang"/* .
               cp "languages/$lang"/custom_script.sh ./settings/
               rm -rf ./custom_script.sh
-              rmdir "languages/$lang" 
-              rmdir languages
+              rmdir -rf "languages/$lang" 
+              rmdir -rf languages
             fi
             7z a -r -mx9 "${LATEST_TAG}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
