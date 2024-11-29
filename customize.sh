@@ -75,7 +75,7 @@ Aurora_Installer() {
     fi
 }
 Installer() {
-    if [[ "$Installer_Log" != "false" ]] || [[ "$Installer_Log" != "true" ]]; then
+    if [[ "$Installer_Log" != "false" ]] && [[ "$Installer_Log" != "true" ]]; then
         Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [ "$2" != "" ]; then
