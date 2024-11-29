@@ -234,30 +234,20 @@ github_get_url() {
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
-    local TMP_FILE="$MODPATH/TEMP/latest_release_info.json"
-    wget -qO- "$API_URL" >"$TMP_FILE"
-    DOWNLOAD_URLS=$(grep -oP '"browser_download_url": "\K[^"]+' "$TMP_FILE")
-    local tmpfile="$MODPATH/TEMP/mktemp_download_urls.txt"
-
-    echo "$DOWNLOAD_URLS" >"$tmpfile"
-    DESIRED_DOWNLOAD_URL=""
-    while IFS= read -r url; do
-        if [[ $url == *"$SEARCH_CHAR"* ]]; then
-            DESIRED_DOWNLOAD_URL=$url
-            break
-        fi
-    done <"$tmpfile"
-    rm "$tmpfile"
-    rm -f "$TMP_FILE"
+    local DESIRED_DOWNLOAD_URL=$("$MODDIR/curl" --silent --show-error "$API_URL" | "$MODDIR/jq" -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url')
+    if [ -z "$DESIRED_DOWNLOAD_URL" ]; then
+        return 1
+    fi
+    Aurora_ui_print "$DESIRED_DOWNLOAD_URL"
 }
 download_file() {
     local link=$1
     local filename=$(basename "$link")
     local local_path="$download_destination/$filename"
     local retry_count=0
-
+    mkdir -p "$download_destination"
     while [ $retry_count -lt $max_retries ]; do
-        if wget -q "$link" -O "$local_path.tmp"; then
+         if "$MODDIR/curl" -sS -o "$local_path.tmp" "$link"; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
             return 0

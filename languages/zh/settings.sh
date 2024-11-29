@@ -14,7 +14,7 @@ PATCHMOD="/patches/modules"            # 补丁模块存储的目录
 CustomScriptPath="/custom_script.sh"   # 自定义脚本的路径
 langpath="/languages.txt"              # 语言设置文件路径
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # 下载路径
-
+max_retries="3"                       # 下载重试次数
 
 # 高级设置
 Download_before_install=false          # 是否在安装模块之前从网络下载模块并安装

@@ -14,6 +14,7 @@ PATCHMOD="/patches/modules"            # パッチ模块の保存ディレクト
 CustomScriptPath="/custom_script.sh"   # カスタムスクリプトのパス
 langpath="/languages.txt"              # 言語設定ファイルのパス
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # ダウンロードパス
+max_retries="3"                       # ダウンロードの再試行回数
 
 # 上級者向け設定
 Download_before_install=false          # モジュールのインストール前にネットワークからダウンロードしてインストールするかどうか

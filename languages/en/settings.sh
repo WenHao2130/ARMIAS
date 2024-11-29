@@ -14,6 +14,7 @@ PATCHMOD="/patches/modules"            # Directory for storing patch modules
 CustomScriptPath="/custom_script.sh"   # Path to custom script
 langpath="/languages.txt"              # Path to language settings file
 download_destination="/$SDCARD/Download/AuroraNasa_Installer" # Download path
+max_retries="3"                      # Maximum number of download retries
 
 # Advanced settings
 Download_before_install=false          # Whether to download and install modules from the network before installing
