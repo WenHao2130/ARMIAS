@@ -258,7 +258,7 @@ download_file() {
             return 0
         else
             retry_count=$((retry_count + 1))
-            Aurora_ui_print "$DOWNLOAD_FAILED $link. $RETRY_DOWNLOAD $retry_count/$max_retries..."
+            Aurora_ui_print "$DOWNLOAD_FAILED $RETRY_DOWNLOAD $filename $retry_count/$max_retries..."
         fi
     done
 
