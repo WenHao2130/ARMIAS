@@ -12,8 +12,8 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    set_permissions_777 "$MODPATH/curl"
-    set_permissions_777 "$MODPATH/jq"
+    set_permissions_755 "$MODPATH"/curl
+    set_permissions_755 "$MODPATH"/jq
     initialize_install "$MODPATH/$ZIPLIST"
     download_and_install
     patches_install
@@ -179,8 +179,8 @@ patches_install() {
         Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
-set_permissions_777() {
-    set_perm "$1" 0 0 0777 0777 u:object_r:system_file:s0
+set_permissions_755() {
+    set_perm "$1" 0 0 0755
 }
 check_network() {
     ping -c 1 www.baidu.com >/dev/null 2>&1
@@ -239,7 +239,7 @@ github_get_url() {
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
-    DESIRED_DOWNLOAD_URL=$("$MODDIR/curl" --silent --show-error "$API_URL" | "$MODDIR/jq" -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url')
+    DESIRED_DOWNLOAD_URL=$("$MODDIR"/curl --silent --show-error "$API_URL" | "$MODDIR/jq" -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url')
     if [ -z "$DESIRED_DOWNLOAD_URL" ]; then
         return 1
     fi
@@ -254,15 +254,14 @@ download_file() {
     local local_path="$download_destination/$filename"
     local retry_count=0
     mkdir -p "$download_destination"
-        local file_size_bytes=$("$MODDIR/curl" -sI "$link" | grep 'Content-Length' | awk '{print $2}')
+        local file_size_bytes=$("$MODDIR"/curl -sI "$link" | grep 'Content-Length' | awk '{print $2}')
     if [[ -z "$file_size_bytes" ]]; then
         Aurora_ui_print "$FAILED_TO_GET_FILE_SIZE $link"
-        return 1
     fi
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-         if "$MODDIR/curl" -sS -o "$local_path.tmp" "$link"; then
+         if "$MODDIR"/curl -sS -o "$local_path.tmp" "$link"; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
             return 0
