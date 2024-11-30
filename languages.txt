@@ -25,6 +25,8 @@ lang_en() {
     CHECK_NETWORK="No internet connection. Please check your network connection."
     PRESS_VOLUME_RETRY="Press volume key to retry"
     PRESS_VOLUME_SKIP="Press volume key to skip"
+    DOWNLOADING="Downloading"
+    FAILED_TO_GET_FILE_SIZE="Failed to retrieve file size for"
 }
 lang_zh() {
     ERROR_TEXT="错误"
@@ -53,6 +55,8 @@ lang_zh() {
     CHECK_NETWORK="没有网络连接 请检查网络连接"
     PRESS_VOLUME_RETRY="继续重试"
     PRESS_VOLUME_SKIP="跳过"
+    DOWNLOADING="下载中"
+    FAILED_TO_GET_FILE_SIZE="无法获取文件大小"
 }
 lang_jp() {
     ERROR_TEXT="エラー"
@@ -81,4 +85,6 @@ lang_jp() {
     CHECK_NETWORK="ネットワークに接続されていません。ネットワーク接続を確認してください。"
     PRESS_VOLUME_RETRY="ボリュームキーを押して再試行"
     PRESS_VOLUME_SKIP="ボリュームキーを押してスキップ"
+    DOWNLOADING="ダウンロード中"
+    FAILED_TO_GET_FILE_SIZE="ファイルサイズを取得できませんでした"
 }
