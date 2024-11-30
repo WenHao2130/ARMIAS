@@ -254,7 +254,7 @@ download_file() {
     local local_path="$download_destination/$filename"
     local retry_count=0
     mkdir -p "$download_destination"
-        local file_size_bytes=$(curl -sI "$link" | grep 'Content-Length' | awk '{print $2}')
+        local file_size_bytes=$("$MODDIR/curl" -sI "$link" | grep 'Content-Length' | awk '{print $2}')
     if [[ -z "$file_size_bytes" ]]; then
         Aurora_ui_print "$FAILED_TO_GET_FILE_SIZE $link"
         return 1
