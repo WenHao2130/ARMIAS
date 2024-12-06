@@ -14,8 +14,7 @@ main() {
     version_check
     set_permissions_755 "$MODPATH"/curl
     set_permissions_755 "$MODPATH"/jq
-    initialize_install "$MODPATH/$ZIPLIST"
-    download_and_install
+    sclect_settings_install_on_main
     patches_install
     CustomShell
 }
@@ -293,7 +292,14 @@ initialize_download() {
         fi
     done
 }
-download_and_install() {
+sclect_settings_install_on_main() {
+        if [[ "$install" == "false" ]]; then
+        return
+    elif [[ "$install" == "true" ]]; then
+        initialize_install "$MODPATH/$ZIPLIST"
+    else
+        Aurora_abort "install$ERROR_INVALID_LOCAL_VALUE" 4
+    fi
     if [[ "$Download_before_install" == "false" ]]; then
         return
     elif [[ "$Download_before_install" == "true" ]]; then
