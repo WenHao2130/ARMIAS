@@ -1,5 +1,8 @@
 #!/bin/bash
 sleep 10
-ksud module uninstall "AuroraNasa_Installer"
-apd module uninstall "AuroraNasa_Installer"
-su -c touch "$SECURE_DIR/modules/AuroraNasa_Installer/remove"
+#模块名称
+name="AuroraNasa_Installer"
+
+ksud module uninstall $name
+apd module uninstall $name
+touch "/data/adb/modules/$name/remove"

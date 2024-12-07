@@ -49,7 +49,7 @@ jobs:
             if [ -d "languages/$lang" ]; then
               cp "languages/$lang"/* .
               cp "languages/$lang"/custom_script.sh ./settings/
-              cp "languages/$lang"/settings.ini ./settings/
+              cp "languages/$lang"/settings.ini ./settings/settings.sh
               rm -rf ./custom_script.sh
               rm -rf ./settings.ini
               rm -rf "languages/$lang"/*
