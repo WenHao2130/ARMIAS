@@ -27,6 +27,8 @@ lang_en() {
     PRESS_VOLUME_SKIP="Press volume key to skip"
     DOWNLOADING="Downloading"
     FAILED_TO_GET_FILE_SIZE="Failed to retrieve file size for"
+    COMMAND_FAILED="command failed"
+    NOTFOUND_URL="No matching download URL found"
 }
 lang_zh() {
     ERROR_TEXT="错误"
@@ -57,6 +59,8 @@ lang_zh() {
     PRESS_VOLUME_SKIP="跳过"
     DOWNLOADING="下载中"
     FAILED_TO_GET_FILE_SIZE="无法获取文件大小"
+    COMMAND_FAILED="命令失败"
+    NOTFOUND_URL="未找到匹配的下载 URL"
 }
 lang_jp() {
     ERROR_TEXT="エラー"
@@ -87,4 +91,6 @@ lang_jp() {
     PRESS_VOLUME_SKIP="ボリュームキーを押してスキップ"
     DOWNLOADING="ダウンロード中"
     FAILED_TO_GET_FILE_SIZE="ファイルサイズを取得できませんでした"
+    COMMAND_FAILED="コマンドに失敗しました"
+    NOTFOUND_URL="一致するダウンロード URL が見つかりませんでした"
 }

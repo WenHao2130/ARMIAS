@@ -224,8 +224,8 @@ key_select() {
 }
 key_installer() {
     if [ "$3" != "" ] && [ "$4" != "" ]; then
-        Aurora_ui_print "$KEY_VOLUME + $KEY_VOLUME_INSTALL_MODULE $3"
-        Aurora_ui_print "$KEY_VOLUME - $KEY_VOLUME_INSTALL_MODULE $4"
+        Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $3"
+        Aurora_ui_print "${KEY_VOLUME}-${KEY_VOLUME_INSTALL_MODULE} $4"
     fi
     key_select
     if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
@@ -238,11 +238,27 @@ github_get_url() {
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
-    DESIRED_DOWNLOAD_URL=$("$MODDIR"/curl --silent --show-error "$API_URL" | "$MODDIR/jq" -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url')
+    local curl_response_file=$(mktemp)
+    "$MODDIR"/curl --silent --show-error "$API_URL" >"$curl_response_file"
+    if [ $? -ne 0 ]; then
+        rm -f "$curl_response_file" "$TEMP_FILE"
+        Aurora_abort "curl $COMMAND_FAILED"
+    fi
+    local TEMP_FILE=$(mktemp)
+    "$MODDIR"/jq -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url' "$curl_response_file" >"$TEMP_FILE"
+    if [ $? -ne 0 ]; then
+        rm -f "$curl_response_file" "$TEMP_FILE"
+        Aurora_abort "jq $COMMAND_FAILED"
+    fi
+    DESIRED_DOWNLOAD_URL=$(cat "$TEMP_FILE")
     if [ -z "$DESIRED_DOWNLOAD_URL" ]; then
+        rm -f "$curl_response_file" "$TEMP_FILE"
+        Aurora_ui_print "$NOTFOUND_URL"
         return 1
     fi
     Aurora_ui_print "$DESIRED_DOWNLOAD_URL"
+    rm -f "$curl_response_file" "$TEMP_FILE"
+    return 0
 }
 download_file() {
     local link=$1
@@ -252,30 +268,38 @@ download_file() {
     fi
     local local_path="$download_destination/$filename"
     local retry_count=0
+    local curl_file=$(mktemp)
     mkdir -p "$download_destination"
-        local file_size_bytes=$("$MODDIR"/curl -sI "$link" | grep 'Content-Length' | awk '{print $2}')
+    "$MODDIR"/curl -sI "$link" | grep 'Content-Length' | awk '{print $2}' >"$curl_file"
+    if [ $? -ne 0 ]; then
+        rm -f "$curl_file"
+        Aurora_abort "curl $COMMAND_FAILED"
+    fi
+    file_size_bytes=$(cat "$curl_file")
     if [[ -z "$file_size_bytes" ]]; then
         Aurora_ui_print "$FAILED_TO_GET_FILE_SIZE $link"
     fi
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-         if "$MODDIR"/curl -sS -o "$local_path.tmp" "$link"; then
+    "$MODDIR"/curl -sS -o "$local_path.tmp" "$link"
+        if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
             return 0
         else
             retry_count=$((retry_count + 1))
+            rm -f "$local_path.tmp"
             Aurora_ui_print "$RETRY_DOWNLOAD $retry_count/$max_retries... $DOWNLOAD_FAILED $filename"
         fi
     done
 
     Aurora_ui_print "$DOWNLOAD_FAILED $link"
-    Aurora_ui_print "$KEY_VOLUME + $PRESS_VOLUME_RETRY"
-    Aurora_ui_print "$KEY_VOLUME - $PRESS_VOLUME_SKIP"
+    Aurora_ui_print "${KEY_VOLUME}+${PRESS_VOLUME_RETRY}"
+    Aurora_ui_print "${KEY_VOLUME}-${PRESS_VOLUME_SKIP}"
     key_select
     if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
-        download_file "$1"
+        download_file "$link"
     fi
     return 1
 }
@@ -293,7 +317,7 @@ initialize_download() {
     done
 }
 sclect_settings_install_on_main() {
-        if [[ "$install" == "false" ]]; then
+    if [[ "$install" == "false" ]]; then
         return
     elif [[ "$install" == "true" ]]; then
         initialize_install "$MODPATH/$ZIPLIST"
