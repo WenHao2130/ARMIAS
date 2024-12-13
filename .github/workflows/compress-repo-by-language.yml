@@ -47,23 +47,9 @@ jobs:
         run: |
           . ./languages.ini
 
-      - name: Create module.prop file
-        run: |
-          CURRENT_TIME=$(date +"%Y%m%d%H%M")
-          echo "id=AuroraNasa_Installer" > module.prop
-          echo "name=\$MODULE_NAME" >> module.prop
-          echo "version=\$LATEST_TAG ${GITHUB_SHA:0:8}" >> module.prop
-          echo "versionCode=\$CURRENT_TIME" >> module.prop
-          echo "author=AuroraNasa" >> module.prop
-          echo "description=\$MODULE_DES" >> module.prop
-
-      - name: Display module.prop file
-        run: cat module.prop
       - name: Compress repository for each language version
 
         run: |
-          LATEST_TAG=$(cat latest_tag.txt)
-          languages=("en" "jp" "zh")
           
           for lang in "${languages[@]}"; do
             find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
@@ -77,14 +63,26 @@ jobs:
               rm -rf "languages/$lang"/*
               rmdir "languages/$lang" 
               rmdir languages
+              eval lang_$lang
+              echo "id=AuroraNasa_Installer" > module.prop
+              echo "name=\${MODULE_NAME}" >> module.prop
+              echo "version=\${LATEST_TAG} ${GITHUB_SHA:0:8}" >> module.prop
+              echo "versionCode=\${CURRENT_TIME}" >> module.prop
+              echo "author=AuroraNasa" >> module.prop
+              echo "description=\$MODULE_DES" >> module.prop
+              cat module.prop
+
             fi
-            7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
+            7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
           done
+      - name: 7z Compress all languages version
+        run: |
+          7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_all.7z" *.zip
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ARMIAS_all_languages_versions
           path: |
-            *.zip
+            *_all.zip
