@@ -121,26 +121,28 @@ Installer() {
     fi
 }
 initialize_install() {
+    shopt -s nocasematch
     local dir="$1"
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
     fi
 
     while IFS= read -r -d '' file; do
-        if [ -f "$file" ]; then
+        if [[ -f "$file" ]]; then
             Installer "$file"
         fi
     done < <(find "$dir" -maxdepth 1 -type f ! -name "$delayed_pattern" -print0 | sort -z)
 
     while IFS= read -r -d '' shamiko_file; do
-        if [ -f "$shamiko_file" ]; then
+        if [[ -f "$shamiko_file" ]]; then
             Installer "$shamiko_file"
         fi
     done < <(find "$dir" -maxdepth 1 -type f -name "$delayed_pattern" -print0 | sort -z)
 
-    if [ -z "$(find "$dir" -maxdepth 1 -type f)" ]; then
+    if [[ -z "$(find "$dir" -maxdepth 1 -type f)" ]]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
+    shopt -u nocasematch
 }
 patch_default() {
     if [ -d "$1/$2" ]; then
