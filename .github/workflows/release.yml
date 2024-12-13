@@ -1,0 +1,30 @@
+name: Upload Release Assets
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  upload_release_assets:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Upload Release Assets
+      run: |
+          # Find all ZIP files in the specified directory
+          zip_files=$(find ./ -name '*.zip')
+  
+          # Loop through each ZIP file and upload it as a release asset
+          for zip_file in $zip_files; do
+            echo "Uploading $zip_file as a release asset..."
+            curl -X POST "${{ github.event.release.upload_url }}" \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/zip" \
+              --data-binary @"$zip_file" \
+              --output upload.txt
+          done
+    env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
