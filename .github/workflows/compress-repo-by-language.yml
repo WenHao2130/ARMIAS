@@ -43,9 +43,13 @@ jobs:
           CURRENT_TIME=$(date +"%Y%m%d%H%M")
           echo "CURRENT_TIME=$CURRENT_TIME" >> $GITHUB_ENV   
 
+      - name: Execute custom shell script
+        run: |
+          . ./languages.ini
+
       - name: Compress repository for each language version
         run: |
-          
+          languages=("en" "jp" "zh")
           for lang in "${languages[@]}"; do
             find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
             rm -f README.md README_*.md
@@ -58,16 +62,14 @@ jobs:
               rm -rf "languages/$lang"/*
               rmdir "languages/$lang" 
               rmdir languages
+              eval "lang_${lang}"
               echo "id=AuroraNasa_Installer" > module.prop
-              echo "name=Highly customizable automated module installation and configuration module" >> module.prop
-              echo "version=${LATEST_TAG} ${GITHUB_SHA:0:8}" >> module.prop
-              echo "versionCode=${CURRENT_TIME}" >> module.prop
+              echo "name=\${MODULE_NAME}" >> module.prop
+              echo "version=\${LATEST_TAG} ${GITHUB_SHA:0:8}" >> module.prop
+              echo "versionCode=\${CURRENT_TIME}" >> module.prop
               echo "author=AuroraNasa" >> module.prop
-              echo "description=This module will be automatically deleted after restarting, please do not interfere" >> module.prop
+              echo "description=\$MODULE_DES" >> module.prop
               cat module.prop
-              7z a archive.7z curl jq -m0=zstd -mx=22
-              rm -rf curl
-              rm -rf jq
             fi
             7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
