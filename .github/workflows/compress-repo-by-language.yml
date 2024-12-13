@@ -71,7 +71,6 @@ jobs:
               echo "author=AuroraNasa" >> module.prop
               echo "description=\$MODULE_DES" >> module.prop
               cat module.prop
-
             fi
             7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
