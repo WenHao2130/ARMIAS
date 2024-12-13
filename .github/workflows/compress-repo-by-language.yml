@@ -62,7 +62,7 @@ jobs:
               rm -rf "languages/$lang"/*
               rmdir "languages/$lang" 
               rmdir languages
-              eval lang_$lang
+              eval "lang_${lang}"
               echo "id=AuroraNasa_Installer" > module.prop
               echo "name=\${MODULE_NAME}" >> module.prop
               echo "version=\${LATEST_TAG} ${GITHUB_SHA:0:8}" >> module.prop
