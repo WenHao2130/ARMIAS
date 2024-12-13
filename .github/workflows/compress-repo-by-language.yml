@@ -85,4 +85,4 @@ jobs:
         with:
           name: ARMIAS_all_languages_versions
           path: |
-            *_all.zip
+            *_all.7z
