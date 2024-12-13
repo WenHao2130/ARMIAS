@@ -76,13 +76,10 @@ jobs:
             7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt
             git checkout -- languages
           done
-      - name: 7z Compress all languages version
-        run: |
-          7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_all.7z" *.zip
 
       - name: Upload zip files as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ARMIAS_all_languages_versions
+          name: ARMIAS_all_languages_versions_${GITHUB_SHA:0:8}.zip
           path: |
-            *_all.7z
+            *.zip
