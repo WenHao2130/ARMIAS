@@ -16,4 +16,4 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to create archive for directory: output.7z"
 fi
-rm -rf "/data/adb/7zzs"
+rm -f "/data/adb/7zzs"

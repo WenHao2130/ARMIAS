@@ -36,5 +36,5 @@ for DIR in "$TARGET_DIR"*/; do
         echo "Failed to create archive for directory: $DIR_NAME"
     fi
 done
-rm -rf "/data/adb/7zzs"
+rm -f "/data/adb/7zzs"
 echo "All directories have been processed."

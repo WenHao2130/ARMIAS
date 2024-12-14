@@ -21,6 +21,7 @@ main() {
     sclect_settings_install_on_main
     patches_install
     CustomShell
+    remove_files
 }
 #######################################################
 Aurora_ui_print() {
@@ -288,7 +289,7 @@ download_file() {
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-    $curl -sS -o "$local_path.tmp" "$link"
+        $curl -sS -o "$local_path.tmp" "$link"
         if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
@@ -340,7 +341,7 @@ sclect_settings_install_on_main() {
     fi
 }
 un7z() {
-        "$zips" x "$1" -o"$2" >/dev/null 2>&1
+    "$zips" x "$1" -o"$2" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
     else
@@ -349,8 +350,8 @@ un7z() {
 }
 if_un7z_zip() {
     if [ -f $MODDIR/output.7z ]; then
-    un7z "$MODDIR/output.zip" "$MODPATH/files/"
-    rm "$MODDIR/output.7z"
+        un7z "$MODDIR/output.7z" "$MODPATH/files/"
+        rm "$MODDIR/output.7z"
     fi
 }
 aurora_flash_boot() {
@@ -362,6 +363,12 @@ magisk_denylist_add() {
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
     fi
+}
+remove_files() {
+    rm -rf "$MODDIR/files/"
+    rm -f "$MODDIR/curl"
+    rm -f "$MODDIR/jq"
+    rm -f "$MODDIR/7zzs"
 }
 CustomShell() {
     if [[ "$CustomScript" == "false" ]]; then
