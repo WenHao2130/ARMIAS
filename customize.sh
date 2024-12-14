@@ -1,5 +1,6 @@
 #!/bin/bash
 main() {
+    INSTALLER_MODPATH="$MODPATH"
     if [ ! -f "$MODPATH/settings/settings.sh" ]; then
         abort "Notfound File!!!(settings.sh)"
     else
@@ -22,6 +23,7 @@ main() {
     patches_install
     CustomShell
     remove_files
+    ClearEnv
 }
 #######################################################
 Aurora_ui_print() {
@@ -465,6 +467,9 @@ CustomShell() {
     else
         Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
+}
+ClearEnv() {
+    rm -rf "$INSTALLER_MODPATH"
 }
 ##########################################################
 main
