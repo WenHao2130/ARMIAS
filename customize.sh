@@ -81,6 +81,10 @@ Aurora_Installer() {
     fi
 }
 Installer() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "Installer(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     if [[ "$Installer_Log" != "false" ]] && [[ "$Installer_Log" != "true" ]]; then
         Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
@@ -128,21 +132,53 @@ Installer() {
 initialize_install() {
     shopt -s nocasematch
     local dir="$1"
+    local -a matching_files=()
+    local -a all_files=()
     if [ ! -d "$dir" ]; then
-        Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $1"
+        Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
+        shopt -u nocasematch
+        return
     fi
 
     while IFS= read -r -d '' file; do
         if [[ -f "$file" ]]; then
+            for pattern in "${delayed_patterns[@]}"; do
+                if [[ "$file" == *"$pattern"* ]]; then
+                    matching_files+=("$file")
+                    break
+                fi
+            done
+            all_files+=("$file")
+        fi
+    done < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z)
+
+    while IFS= read -r -d '' file; do
+        if [[ -f "$file" && ! " ${matching_files[*]} " =~ " $file " ]]; then
             Installer "$file"
         fi
-    done < <(find "$dir" -maxdepth 1 -type f ! -name "$delayed_pattern" -print0 | sort -z)
+    done < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z)
 
-    while IFS= read -r -d '' shamiko_file; do
-        if [[ -f "$shamiko_file" ]]; then
-            Installer "$shamiko_file"
-        fi
-    done < <(find "$dir" -maxdepth 1 -type f -name "$delayed_pattern" -print0 | sort -z)
+    if [[ ${#matching_files[@]} -gt 0 ]]; then
+        for file in "${matching_files[@]}"; do
+            if [[ "$file" == "*Shamiko*" ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
+                for element in "${all_files[@]}"; do
+                    if [[ "$element" != "*zygisk*" ]]; then
+                        Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
+                        break
+                    fi
+                done
+                if [[ "$APATCH" = true ]]; then
+                    Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
+                    key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
+                    SKIP_INSTALL_SHAMIKO=true
+                fi
+            fi
+            if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
+                Installer "$file"
+                SKIP_INSTALL_SHAMIKO=false
+            fi
+        done
+    fi
 
     if [[ -z "$(find "$dir" -maxdepth 1 -type f)" ]]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
@@ -349,7 +385,7 @@ un7z() {
     fi
 }
 if_un7z_zip() {
-    if [ -f $MODDIR/output.7z ]; then
+    if [ -f "$MODDIR"/output.7z ]; then
         un7z "$MODDIR/output.7z" "$MODPATH/files/"
         rm "$MODDIR/output.7z"
     fi
