@@ -13,9 +13,9 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    curl="$MODPATH"/curl
-    jq="$MODPATH"/jq
-    zips="$MODPATH"/7zzs
+    curl="$MODPATH"/prebuilts/curl
+    jq="$MODPATH"/prebuilts/jq
+    zips="$MODPATH"/prebuilts/7zzs
     set_permissions_755 "$curl"
     set_permissions_755 "$jq"
     if_un7z_zip
@@ -454,9 +454,7 @@ magisk_denylist_add() {
 }
 remove_files() {
     rm -rf "$MODDIR/files/"
-    rm -f "$MODDIR/curl"
-    rm -f "$MODDIR/jq"
-    rm -f "$MODDIR/7zzs"
+    rm -rf "$MODDIR/prebuilts/"
 }
 CustomShell() {
     if [[ "$CustomScript" == "false" ]]; then

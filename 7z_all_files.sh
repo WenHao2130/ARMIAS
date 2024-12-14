@@ -8,14 +8,12 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-cp "$current_dir/7zzs" "/data/adb/"
+cp "$current_dir/prebuilts/7zzs" "/data/adb/"
 chmod 777 "/data/adb/7zzs"
 /data/adb/7zzs a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/* 
 rm -rf "$current_dir"/files/*
 /data/adb/7zzs a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
-rm -rf "$current_dir"/7zzs
-rm -rf "$current_dir"/curl
-rm -rf "$current_dir"/jq
+rm -rf "$current_dir"/prebuilts/
 rm -rf "$current_dir"/files/
 rm -rf "$current_dir"/customize.sh
 rm -rf "$current_dir"/META-INF/

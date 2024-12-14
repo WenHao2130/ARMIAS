@@ -12,7 +12,7 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-cp "$pwddir/7zzs" "/data/adb/"
+cp "$pwddir/prebuilts/7zzs" "/data/adb/"
 chmod 777 "/data/adb/7zzs"
 for DIR in "$TARGET_DIR"*/; do
 
