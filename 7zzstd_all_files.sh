@@ -10,7 +10,7 @@ for dir in "${temp_dirs[@]}"; do
 done
 cp "$current_dir/7zzs" "/data/adb/"
 chmod 777 "/data/adb/7zzs"
-/data/adb/7zzs a -mx9 "$current_dir"/files/* "$current_dir"/output.7z
+/data/adb/7zzs a -r -mx9 "$current_dir"/output.7z "$current_dir"/files/*
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/output.7z"
 else

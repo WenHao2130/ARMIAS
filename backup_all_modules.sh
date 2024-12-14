@@ -20,15 +20,15 @@ for DIR in "$TARGET_DIR"*/; do
         exit 0
     fi
 
-    if [ ! -f "$pwddir/META-INF/com/google/android/update-script" ]; then
-        echo "缺失META-INF/com/google/android/update-script文件"
+    if [ ! -f "$pwddir/META-INF/com/google/android/updater-script" ]; then
+        echo "缺失META-INF/com/google/android/updater-script文件"
         exit 0
     fi
     mkdir -p "$DIR/META-INF/com/google/android/"
     cp "$pwddir/META-INF/com/google/android/update-binary" "$DIR/META-INF/com/google/android/"
-    cp "$pwddir/META-INF/com/google/android/update-script" "$DIR/META-INF/com/google/android/"
+    cp "$pwddir/META-INF/com/google/android/updater-script" "$DIR/META-INF/com/google/android/"
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.7z"
-    /data/adb/7zzs a -mx9 "$OUTPUT_FILE" "$DIR"/*
+    /data/adb/7zzs a -r -mx9 "$OUTPUT_FILE" "$DIR"/*
     rm -rf "$DIR/META-INF/"
     if [ $? -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
