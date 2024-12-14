@@ -31,12 +31,13 @@ jobs:
         run: |
           CURRENT_TIME=$(date +"%Y%m%d%H%M")
           echo "$CURRENT_TIME" > current_time.txt 
+          
       - name: Get latest tag
         id: latest-tag
         run: |
               LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
               echo "$LATEST_TAG" > latest_tag.txt
-              
+
       - name: Compress repository for each language version
         run: |
           LATEST_TAG=$(cat latest_tag.txt)
@@ -61,7 +62,7 @@ jobs:
               echo "version=${LATEST_TAG} ${GITHUB_SHA:0:8}" >> module.prop
               echo "versionCode=${CURRENT_TIME}" >> module.prop
               echo "author=AuroraNasa" >> module.prop
-              echo "description={$MODULE_DES}" >> module.prop
+              echo "description=${MODULE_DES}" >> module.prop
               cat module.prop
             fi
             7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${GITHUB_SHA:0:8}_${lang}.zip" * -x!*.git* -x!*.md -x!*.zip -x!latest_tag.txt -x!current_time.txt
