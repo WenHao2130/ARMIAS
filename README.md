@@ -14,7 +14,7 @@
 
 #### 进阶功能（可选阅读）
 
-- 运行`7zzstd_all_files.sh`来压缩所有文件以节省空间。
+- 运行`7zzs_all_files.sh`来压缩所有文件以节省空间。
 
 - **DATA和SDCARD一键覆盖**  
   - 鉴于某些模块安装后会生成配置文件等在data/或android文件夹中。

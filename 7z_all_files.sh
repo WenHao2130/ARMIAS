@@ -11,6 +11,19 @@ done
 cp "$current_dir/7zzs" "/data/adb/"
 chmod 777 "/data/adb/7zzs"
 /data/adb/7zzs a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/* 
+rm -rf "$current_dir"/files/*
+/data/adb/7zzs a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
+rm -rf "$current_dir"/7zzs
+rm -rf "$current_dir"/curl
+rm -rf "$current_dir"/jq
+rm -rf "$current_dir"/files/
+rm -rf "$current_dir"/customize.sh
+rm -rf "$current_dir"/META-INF/
+rm -rf "$current_dir"/settings/
+rm -rf "$current_dir"/languages.ini
+rm -rf "$current_dir"/service.sh
+rm -rf "$current_dir"/output.7z
+rm -rf "$current_dir"/backup_all_modules.sh
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/output.7z"
 else

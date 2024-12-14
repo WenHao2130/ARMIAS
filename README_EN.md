@@ -14,7 +14,7 @@
 #### Advanced Features (Optional Reading)
 
 
-- Run `7zzstd_all_files.sh` to compress all files to save space.
+- Run `7zzs_all_files.sh` to compress all files to save space.
 
 - **One-Click DATA and SDCARD Overwrite**
   - Considering that some modules generate configuration files in the data/ or android folders after installation.
