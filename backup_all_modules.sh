@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_DIR="data/adb/modules/"
+TARGET_DIR="/data/adb/modules/"
 pwddir="$(pwd)"
 OUTPUT_DIR="$pwddir/files/modules/"
 cp "$pwddir/7zzs" "/data/adb/"
@@ -27,7 +27,7 @@ for DIR in "$TARGET_DIR"*/; do
     mkdir -p "$DIR/META-INF/com/google/android/"
     cp "$pwddir/META-INF/com/google/android/update-binary" "$DIR/META-INF/com/google/android/"
     cp "$pwddir/META-INF/com/google/android/updater-script" "$DIR/META-INF/com/google/android/"
-    OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.7z"
+    OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
     /data/adb/7zzs a -r -mx9 "$OUTPUT_FILE" "$DIR"/*
     rm -rf "$DIR/META-INF/"
     if [ $? -eq 0 ]; then
