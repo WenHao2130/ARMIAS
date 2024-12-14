@@ -3,11 +3,6 @@
 TARGET_DIR="/data/adb/modules/"
 pwddir="$(pwd)"
 OUTPUT_DIR="$pwddir/files/modules/"
-if [[ $SHELL != *"su"* ]]; then
-    echo "错误：此脚本必须通过su执行。" >&2
-    exit 1
-fi
-echo "脚本正在以su执行，继续执行后续操作..."
 temp_dirs=("/tmp" "/var/tmp" "/Temp" "/Users/*/Library/Caches" "/storage/emulated/0/Android/data/bin.mt.plus/temp")
 for dir in "${temp_dirs[@]}"; do
     if [[ $current_dir == $dir* ]]; then

@@ -8,11 +8,6 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-if [[ $SHELL != *"su"* ]]; then
-    echo "错误：此脚本必须通过su执行。" >&2
-    exit 1
-fi
-echo "脚本正在以su执行，继续执行后续操作..."
 cp "$current_dir/7zzs" "/data/adb/"
 chmod 777 "/data/adb/7zzs"
 /data/adb/7zzs a -r -mx9 "$current_dir"/output.7z "$current_dir"/files/*
