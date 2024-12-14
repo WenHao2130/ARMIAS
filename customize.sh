@@ -245,13 +245,13 @@ github_get_url() {
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
     local curl_response_file=$(mktemp)
-    "$curl" --silent --show-error "$API_URL" >"$curl_response_file"
+    $curl --silent --show-error "$API_URL" >"$curl_response_file"
     if [ $? -ne 0 ]; then
         rm -f "$curl_response_file" "$TEMP_FILE"
         Aurora_abort "curl $COMMAND_FAILED"
     fi
     local TEMP_FILE=$(mktemp)
-    "$jq" -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url' "$curl_response_file" >"$TEMP_FILE"
+    $jq -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url' "$curl_response_file" >"$TEMP_FILE"
     if [ $? -ne 0 ]; then
         rm -f "$curl_response_file" "$TEMP_FILE"
         Aurora_abort "jq $COMMAND_FAILED"
@@ -276,7 +276,7 @@ download_file() {
     local retry_count=0
     local curl_file=$(mktemp)
     mkdir -p "$download_destination"
-    "$curl" -sI "$link" | grep 'Content-Length' | awk '{print $2}' >"$curl_file"
+    $curl -sI "$link" | grep 'Content-Length' | awk '{print $2}' >"$curl_file"
     if [ $? -ne 0 ]; then
         rm -f "$curl_file"
         Aurora_abort "curl $COMMAND_FAILED"
@@ -288,7 +288,7 @@ download_file() {
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-    "$curl" -sS -o "$local_path.tmp" "$link"
+    $curl -sS -o "$local_path.tmp" "$link"
         if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"

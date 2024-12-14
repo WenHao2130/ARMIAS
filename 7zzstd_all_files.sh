@@ -8,9 +8,12 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-"$current_dir/7zzs" a -mx9 "$current_dir"/files/* "$current_dir"/output.7z
-    if [ $? -eq 0 ]; then
-        echo "Successfully created archive: $OUTPUT_FILE"
-    else
-        echo "Failed to create archive for directory: $DIR_NAME"
-    fi
+cp "$current_dir/7zzs" "data/adb/"
+chmod 777 "data/adb/7zzs"
+data/adb/7zzs a -mx9 "$current_dir"/files/* "$current_dir"/output.7z
+if [ $? -eq 0 ]; then
+    echo "Successfully created archive: $current_dir/output.7z"
+else
+    echo "Failed to create archive for directory: output.7z"
+fi
+rm -rf "data/adb/7zzs"

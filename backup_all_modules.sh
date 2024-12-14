@@ -3,7 +3,8 @@
 TARGET_DIR="data/adb/modules/"
 pwddir="$(pwd)"
 OUTPUT_DIR="$pwddir/files/modules/"
-
+cp "$pwddir/7zzs" "data/adb/"
+chmod 777 "data/adb/7zzs"
 for DIR in "$TARGET_DIR"*/; do
 
     if [ ! -d "$DIR" ]; then
@@ -27,7 +28,7 @@ for DIR in "$TARGET_DIR"*/; do
     cp "$pwddir/META-INF/com/google/android/update-binary" "$DIR/META-INF/com/google/android/"
     cp "$pwddir/META-INF/com/google/android/update-script" "$DIR/META-INF/com/google/android/"
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.7z"
-    "$current_dir/7zzs" a -mx9 "$OUTPUT_FILE" "$DIR"/*
+    data/adb/7zzs a -mx9 "$OUTPUT_FILE" "$DIR"/*
     rm -rf "$DIR/META-INF/"
     if [ $? -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
@@ -35,5 +36,5 @@ for DIR in "$TARGET_DIR"*/; do
         echo "Failed to create archive for directory: $DIR_NAME"
     fi
 done
-
+rm -rf "data/adb/7zzs"
 echo "All directories have been processed."
