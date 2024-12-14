@@ -9,9 +9,12 @@
 - Simply place all modules (zip files) into the `./files/modules` folder.
 
 **Note**: Please ensure that file names do **not contain special characters**.
+- Unzip the zip folder containing the module and run `backup_all_modules.sh` to backup all modules.
 
 #### Advanced Features (Optional Reading)
 
+
+- Run `7zzstd_all_files.sh` to compress all files to save space.
 
 - **One-Click DATA and SDCARD Overwrite**
   - Considering that some modules generate configuration files in the data/ or android folders after installation.
@@ -42,7 +45,7 @@
 
 
 - **Language File**
-  - Default path: `languages.txt`
+  - Default path: `languages.ini`
   - Supports modifying the language file.
 
 

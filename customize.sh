@@ -142,40 +142,33 @@ initialize_install() {
         rm -f "$temp_matching_files" "$temp_all_files"
         return
     fi
-
-    # Find all files and store them in temp_all_files
-    find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_all_files"
-
-    # Process each file to check for matching patterns
+    find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
     while IFS= read -r -d '' file; do
-        # Assuming delayed_patterns is a space-separated string of patterns
         for pattern in $delayed_patterns; do
             if [[ "$file" == *"$pattern"* ]]; then
-                echo "$file" >> "$temp_matching_files"
+                echo "$file" >>"$temp_matching_files"
                 break
             fi
         done
-    done < "$temp_all_files"
+    done <"$temp_all_files"
 
-    # Process files that do not match any patterns
     while IFS= read -r -d '' file; do
         grep -qFx "$file" "$temp_matching_files" || Installer "$file"
-    done < "$temp_all_files"
+    done <"$temp_all_files"
 
-    # Process matching files with special handling for Shamiko
     while IFS= read -r -d '' file; do
         if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
             shamiko_found=false
-            # Check if any file in temp_all_files contains "zygisk"
             while IFS= read -r -d '' element; do
                 if [[ "$element" == *zygisk* ]]; then
                     shamiko_found=true
                     break
                 fi
-            done < "$temp_all_files"
+            done <"$temp_all_files"
 
             if [ "$shamiko_found" = false ]; then
                 Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
+                sleep 5
             fi
 
             if [[ "$APATCH" = true ]]; then
@@ -189,14 +182,12 @@ initialize_install() {
             Installer "$file"
             SKIP_INSTALL_SHAMIKO=false
         fi
-    done < "$temp_matching_files"
+    done <"$temp_matching_files"
 
-    # Check if there are no more files to install
     if [ -z "$(cat "$temp_all_files")" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 
-    # Clean up temporary files
     rm -f "$temp_matching_files" "$temp_all_files"
     shopt -u nocasematch
 }
@@ -212,6 +203,10 @@ patch_default() {
     fi
 }
 mv_adb() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "mv_adb(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 patches_install() {
@@ -237,6 +232,10 @@ patches_install() {
     fi
 }
 set_permissions_755() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "set_permissions_755(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     set_perm "$1" 0 0 0755
 }
 check_network() {
@@ -281,6 +280,14 @@ key_select() {
     done
 }
 key_installer() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "key_installer(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
+    if [[ -z "$2" ]]; then
+        Aurora_ui_print "key_installer(2)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     if [ "$3" != "" ] && [ "$4" != "" ]; then
         Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $3"
         Aurora_ui_print "${KEY_VOLUME}-${KEY_VOLUME_INSTALL_MODULE} $4"
@@ -293,6 +300,14 @@ key_installer() {
     fi
 }
 github_get_url() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "github_get_url(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
+    if [[ -z "$2" ]]; then
+        Aurora_ui_print "github_get_url(2)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
@@ -319,6 +334,10 @@ github_get_url() {
     return 0
 }
 download_file() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "download_file(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     local link=$1
     local filename=$(echo "$link" | grep -oP 'filename=\K[^&]+')
     if [[ -z "$filename" || "$filename" == */* ]]; then
@@ -392,6 +411,14 @@ sclect_settings_install_on_main() {
     fi
 }
 un7z() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "un7z(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
+    if [[ -z "$2" ]]; then
+        Aurora_ui_print "un7z(2)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     "$zips" x "$1" -o"$2" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
@@ -406,11 +433,19 @@ if_un7z_zip() {
     fi
 }
 aurora_flash_boot() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "aurora_flash_boot(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     get_flags
     find_boot_image
     flash_image "$1" "$BOOTIMAGE"
 }
 magisk_denylist_add() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "magisk_denylist_add(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
     fi

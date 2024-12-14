@@ -20,6 +20,9 @@
 # ----------------
 # To install a module in compatibility mode, use Installer_Compatibility_mode "$MODPATH/module_path.zip".
 
+# Example: Extract a single file
+# ----------------
+# un7z "Filename to be extracted" "Destination folder" # to extract the specified file.
 # Example: Volume Key Selection for Module Installation
 # ---------------------
 # Use key_installer "$MODPATH/upper_key_module_path.zip" "$MODPATH/lower_key_module_path.zip" "Upper key module name to be printed" "Lower key module name to be printed" # to select the module to install via volume keys.
