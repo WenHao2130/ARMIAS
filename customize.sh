@@ -130,17 +130,29 @@ Installer() {
     fi
 }
 initialize_install() {
-    shopt -s nocasematch
     local dir="$1"
-    local -a matching_files=()
-    local -a all_files=()
+    local matching_files=()
+    local all_files=()
+    local nocasematch_was_on=false
+
+    # Check if nocasematch is already on
+    if shopt -q nocasematch; then
+        nocasematch_was_on=true
+    else
+        shopt -s nocasematch
+    fi
+
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
-        shopt -u nocasematch
+        if [ "$nocasematch_was_on" = false ]; then
+            shopt -u nocasematch
+        fi
         return
     fi
 
-    while IFS= read -r -d '' file; do
+    # Use find to collect all files and matching files
+    mapfile -t all_files < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z | tr '\0' '\n')
+    for file in "${all_files[@]}"; do
         if [[ -f "$file" ]]; then
             for pattern in "${delayed_patterns[@]}"; do
                 if [[ "$file" == *"$pattern"* ]]; then
@@ -148,42 +160,50 @@ initialize_install() {
                     break
                 fi
             done
-            all_files+=("$file")
         fi
-    done < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z)
+    done
 
-    while IFS= read -r -d '' file; do
+    # Process files that do not match any patterns
+    for file in "${all_files[@]}"; do
         if [[ -f "$file" && ! " ${matching_files[*]} " =~ " $file " ]]; then
             Installer "$file"
         fi
-    done < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z)
+    done
 
-    if [[ ${#matching_files[@]} -gt 0 ]]; then
-        for file in "${matching_files[@]}"; do
-            if [[ "$file" == "*Shamiko*" ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
-                for element in "${all_files[@]}"; do
-                    if [[ "$element" != "*zygisk*" ]]; then
-                        Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
-                        break
-                    fi
-                done
-                if [[ "$APATCH" = true ]]; then
-                    Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
-                    key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
-                    SKIP_INSTALL_SHAMIKO=true
+    # Process matching files with special handling for Shamiko
+    for file in "${matching_files[@]}"; do
+        if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
+            shamiko_found=false
+            for element in "${all_files[@]}"; do
+                if [[ "$element" == *zygisk* ]]; then
+                    shamiko_found=true
+                    break
                 fi
+            done
+            if [ "$shamiko_found" = false ]; then
+                Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
             fi
-            if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
-                Installer "$file"
-                SKIP_INSTALL_SHAMIKO=false
+            if [[ "$APATCH" = true ]]; then
+                Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
+                key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
+                SKIP_INSTALL_SHAMIKO=true
             fi
-        done
-    fi
+        fi
+        if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
+            Installer "$file"
+            SKIP_INSTALL_SHAMIKO=false
+        fi
+    done
 
-    if [[ -z "$(find "$dir" -maxdepth 1 -type f)" ]]; then
+    # Check if there are no more files to install
+    if [ $(find "$dir" -maxdepth 1 -type f | wc -l) -eq 0 ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
-    shopt -u nocasematch
+
+    # Restore nocasematch setting
+    if [ "$nocasematch_was_on" = false ]; then
+        shopt -u nocasematch
+    fi
 }
 patch_default() {
     if [ -d "$1/$2" ]; then
