@@ -131,79 +131,74 @@ Installer() {
 }
 initialize_install() {
     local dir="$1"
-    local matching_files=()
-    local all_files=()
-    local nocasematch_was_on=false
+    local temp_matching_files=$(mktemp)
+    local temp_all_files=$(mktemp)
 
-    # Check if nocasematch is already on
-    if shopt -q nocasematch; then
-        nocasematch_was_on=true
-    else
-        shopt -s nocasematch
-    fi
+    shopt -s nocasematch
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
-        if [ "$nocasematch_was_on" = false ]; then
-            shopt -u nocasematch
-        fi
+        shopt -u nocasematch
+        rm -f "$temp_matching_files" "$temp_all_files"
         return
     fi
 
-    # Use find to collect all files and matching files
-    mapfile -t all_files < <(find "$dir" -maxdepth 1 -type f -print0 | sort -z | tr '\0' '\n')
-    for file in "${all_files[@]}"; do
-        if [[ -f "$file" ]]; then
-            for pattern in "${delayed_patterns[@]}"; do
-                if [[ "$file" == *"$pattern"* ]]; then
-                    matching_files+=("$file")
-                    break
-                fi
-            done
-        fi
-    done
+    # Find all files and store them in temp_all_files
+    find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_all_files"
+
+    # Process each file to check for matching patterns
+    while IFS= read -r -d '' file; do
+        # Assuming delayed_patterns is a space-separated string of patterns
+        for pattern in $delayed_patterns; do
+            if [[ "$file" == *"$pattern"* ]]; then
+                echo "$file" >> "$temp_matching_files"
+                break
+            fi
+        done
+    done < "$temp_all_files"
 
     # Process files that do not match any patterns
-    for file in "${all_files[@]}"; do
-        if [[ -f "$file" && ! " ${matching_files[*]} " =~ " $file " ]]; then
-            Installer "$file"
-        fi
-    done
+    while IFS= read -r -d '' file; do
+        grep -qFx "$file" "$temp_matching_files" || Installer "$file"
+    done < "$temp_all_files"
 
     # Process matching files with special handling for Shamiko
-    for file in "${matching_files[@]}"; do
+    while IFS= read -r -d '' file; do
         if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
             shamiko_found=false
-            for element in "${all_files[@]}"; do
+            # Check if any file in temp_all_files contains "zygisk"
+            while IFS= read -r -d '' element; do
                 if [[ "$element" == *zygisk* ]]; then
                     shamiko_found=true
                     break
                 fi
-            done
+            done < "$temp_all_files"
+
             if [ "$shamiko_found" = false ]; then
                 Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
             fi
+
             if [[ "$APATCH" = true ]]; then
                 Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
                 key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
                 SKIP_INSTALL_SHAMIKO=true
             fi
         fi
+
         if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
             Installer "$file"
             SKIP_INSTALL_SHAMIKO=false
         fi
-    done
+    done < "$temp_matching_files"
 
     # Check if there are no more files to install
-    if [ $(find "$dir" -maxdepth 1 -type f | wc -l) -eq 0 ]; then
+    if [ -z "$(cat "$temp_all_files")" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 
-    # Restore nocasematch setting
-    if [ "$nocasematch_was_on" = false ]; then
-        shopt -u nocasematch
-    fi
+    # Clean up temporary files
+    rm -f "$temp_matching_files" "$temp_all_files"
+    shopt -u nocasematch
 }
 patch_default() {
     if [ -d "$1/$2" ]; then
