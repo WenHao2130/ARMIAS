@@ -8,11 +8,11 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-cp "$current_dir/prebuilts/7zzs" "/data/adb/"
-chmod 777 "/data/adb/7zzs"
-/data/adb/7zzs a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/* 
+cp "$current_dir/prebuilts/7zzs" "/data/local/tmp/"
+chmod 777 "/data/local/tmp/7zzs"
+/data/local/tmp/7zzs a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/* 
 rm -rf "$current_dir"/files/*
-/data/adb/7zzs a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
+/data/local/tmp/7zzs a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
 rm -rf "$current_dir"/prebuilts/
 rm -rf "$current_dir"/files/
 rm -rf "$current_dir"/customize.sh
@@ -27,4 +27,4 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to create archive for directory: output.7z"
 fi
-rm -f "/data/adb/7zzs"
+rm -f "/data/local/tmp/7zzs"
