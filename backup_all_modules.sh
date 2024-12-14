@@ -27,7 +27,7 @@ for DIR in "$TARGET_DIR"*/; do
     cp "$pwddir/META-INF/com/google/android/update-binary" "$DIR/META-INF/com/google/android/"
     cp "$pwddir/META-INF/com/google/android/update-script" "$DIR/META-INF/com/google/android/"
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.7z"
-    7zzs a -mx9 "$OUTPUT_FILE" "$DIR"/*
+    "$current_dir/7zzs" a -mx9 "$OUTPUT_FILE" "$DIR"/*
     rm -rf "$DIR/META-INF/"
     if [ $? -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"

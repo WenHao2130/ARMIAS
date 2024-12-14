@@ -8,7 +8,7 @@ for dir in "${temp_dirs[@]}"; do
         exit 0
     fi
 done
-"MODDIR/7zzs" a -mx9 "$current_dir"/files/* "$current_dir"/output.7z
+"$current_dir/7zzs" a -mx9 "$current_dir"/files/* "$current_dir"/output.7z
     if [ $? -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
     else
