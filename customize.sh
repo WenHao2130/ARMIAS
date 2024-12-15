@@ -299,10 +299,6 @@ github_get_url() {
     local wget_response_file=$(mktemp)
 
     wget -S --output-document="$wget_response_file" "$API_URL"
-    if [ $? -ne 0 ]; then
-        rm -f "$wget_response_file"
-        Aurora_abort "wget $COMMAND_FAILED"
-    fi
 
     local TEMP_FILE=$(mktemp)
 
