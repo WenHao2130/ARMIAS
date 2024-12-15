@@ -14,11 +14,6 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    curl="$MODPATH"/prebuilts/curl
-    jq="$MODPATH"/prebuilts/jq
-    zips="$MODPATH"/prebuilts/7zzs
-    set_permissions_755 "$curl"
-    set_permissions_755 "$jq"
     if_un7z_zip
     sclect_settings_install_on_main
     patches_install
@@ -32,10 +27,12 @@ Aurora_ui_print() {
     ui_print ""
     ui_print "- $1"
 }
+
 Aurora_abort() {
     ui_print "$ERROR_TEXT: $1"
     abort "$ERROR_CODE_TEXT: $2"
 }
+#######################################################
 version_check() {
     if [[ -n $KSU_VER_CODE ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
         Aurora_abort "KernelSU: $ERROR_UNSUPPORTED_VERSION $KSU_VER_CODE ($ERROR_VERSION_NUMBER >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)" 1
@@ -47,6 +44,7 @@ version_check() {
         Aurora_abort "Android API: $ERROR_UNSUPPORTED_VERSION $API ($ERROR_VERSION_NUMBER >= $ANDROID_API)" 2
     fi
 }
+
 Installer_Compatibility_mode() {
     MODPATHBACKUP=$MODPATH
     # shellcheck disable=SC2034
@@ -59,30 +57,7 @@ Installer_Compatibility_mode() {
     done
     MODPATH=$MODPATHBACKUP
 }
-Aurora_Installer() {
-    if [[ "$Installer_Log" == "false" ]]; then
-        Aurora_ui_print "$INSTALLER_LOG_DISABLED"
-        if [ "$KSU" = true ]; then
-            ksud module install "$1" >/dev/null 2>&1
-        elif [ "$APATCH" = true ]; then
-            apd module install "$1" >/dev/null 2>&1
-        elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-            magisk --install-module "$1" >/dev/null 2>&1
-        else
-            Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
-        fi
-    elif [[ "$Installer_Log" == "true" ]]; then
-        if [ "$KSU" = true ]; then
-            ksud module install "$1"
-        elif [ "$APATCH" = true ]; then
-            apd module install "$1"
-        elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
-            magisk --install-module "$1"
-        else
-            Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
-        fi
-    fi
-}
+
 Installer() {
     if [[ -z "$1" ]]; then
         Aurora_ui_print "Installer(1)$WARN_MISSING_PARAMETERS"
@@ -114,7 +89,28 @@ Installer() {
         fi
     fi
     if [[ "$Installer_Compatibility" == "false" ]]; then
-        Aurora_Installer "$1"
+        if [[ "$Installer_Log" == "false" ]]; then
+            Aurora_ui_print "$INSTALLER_LOG_DISABLED"
+            if [ "$KSU" = true ]; then
+                ksud module install "$1" >/dev/null 2>&1
+            elif [ "$APATCH" = true ]; then
+                apd module install "$1" >/dev/null 2>&1
+            elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+                magisk --install-module "$1" >/dev/null 2>&1
+            else
+                Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
+            fi
+        elif [[ "$Installer_Log" == "true" ]]; then
+            if [ "$KSU" = true ]; then
+                ksud module install "$1"
+            elif [ "$APATCH" = true ]; then
+                apd module install "$1"
+            elif [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
+                magisk --install-module "$1"
+            else
+                Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
+            fi
+        fi
     elif [[ "$Installer_Compatibility" == "true" ]]; then
         Installer_Compatibility_mode "$1"
     else
@@ -162,18 +158,16 @@ initialize_install() {
     while IFS= read -r -d '' file; do
         if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
             shamiko_found=false
-            while IFS= read -r -d '' element; do
-                if [[ "$element" == *zygisk* ]]; then
-                    shamiko_found=true
-                    break
-                fi
-            done <"$temp_all_files"
+            if [[ -d "/data/adb/modules/zygisksu" ]]; then
+                shamiko_found=true
+                break
+            fi
 
             if [ "$shamiko_found" = false ]; then
                 Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
                 sleep 5
             fi
-
+            SKIP_INSTALL_SHAMIKO=false
             if [[ "$APATCH" = true ]]; then
                 Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
                 key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
@@ -183,7 +177,6 @@ initialize_install() {
 
         if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
             Installer "$file"
-            SKIP_INSTALL_SHAMIKO=false
         fi
     done <"$temp_matching_files"
 
@@ -194,6 +187,7 @@ initialize_install() {
     rm -f "$temp_matching_files" "$temp_all_files"
     shopt -u nocasematch
 }
+
 patch_default() {
     if [ -d "$1/$2" ]; then
         if [ -d "$1/$2" ] && [ "$(ls -A "$1"/"$2")" ]; then
@@ -205,13 +199,7 @@ patch_default() {
         Aurora_ui_print "$2 $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
-mv_adb() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "mv_adb(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
-    su -c mv "$MODPATH/$1"/* "/data/adb/"
-}
+
 patches_install() {
     patch_default "$MODPATH" "$PATCHDATA" "/data"
     patch_default "$MODPATH" "$PATCHSDCARD" "$SDCARD"
@@ -234,34 +222,7 @@ patches_install() {
         Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
-set_permissions_755() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "set_permissions_755(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
-    set_perm "$1" 0 0 0755
-}
-check_network() {
-    ping -c 1 www.baidu.com >/dev/null 2>&1
-    local baidu_status=$?
-    ping -c 1 github.com >/dev/null 2>&1
-    local github_status=$?
-    ping -c 1 google.com >/dev/null 2>&1
-    local google_status=$?
 
-    if [ $baidu_status -eq 0 ]; then
-        Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
-        return 0
-    elif [ $google_status -eq 0 ]; then
-        Aurora_ui_print "$INTERNET_CONNET (Google)"
-        return 0
-    elif [ $github_status -eq 0 ]; then
-        Aurora_ui_print "$INTERNET_CONNET (GitHub)"
-        return 0
-    else
-        return 1
-    fi
-}
 key_select() {
     key_pressed=""
     while true; do
@@ -300,6 +261,29 @@ key_installer() {
         Installer "$1"
     else
         Installer "$2"
+    fi
+}
+#Abort Internet Connection
+##########
+check_network() {
+    ping -c 1 www.baidu.com >/dev/null 2>&1
+    local baidu_status=$?
+    ping -c 1 github.com >/dev/null 2>&1
+    local github_status=$?
+    ping -c 1 google.com >/dev/null 2>&1
+    local google_status=$?
+
+    if [ $baidu_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
+        return 0
+    elif [ $google_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (Google)"
+        return 0
+    elif [ $github_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (GitHub)"
+        return 0
+    else
+        return 1
     fi
 }
 github_get_url() {
@@ -362,7 +346,7 @@ download_file() {
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-        $curl -sS -o "$local_path.tmp" "$link"
+        wget -q --show-progress --output-document="$local_path.tmp" "$link"
         if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
@@ -383,20 +367,15 @@ download_file() {
     fi
     return 1
 }
-initialize_download() {
-    if ! check_network; then
-        Aurora_ui_print "$CHECK_NETWORK"
-        return
-    fi
-
-    for var in $(env | grep '^LINKS_' | cut -d= -f1); do
-        link=$(eval echo \$"$var")
-        if [ -n "$link" ]; then
-            download_file "$link"
-        fi
-    done
-}
+##############
 sclect_settings_install_on_main() {
+    curl="$MODPATH"/prebuilts/curl
+    jq="$MODPATH"/prebuilts/jq
+    zips="$MODPATH"/prebuilts/7zzs
+    if [ -f "$MODDIR"/output.7z ]; then
+        un7z "$MODDIR/output.7z" "$MODPATH/files/"
+        rm "$MODDIR/output.7z"
+    fi
     if [[ "$install" == "false" ]]; then
         return
     elif [[ "$install" == "true" ]]; then
@@ -407,11 +386,30 @@ sclect_settings_install_on_main() {
     if [[ "$Download_before_install" == "false" ]]; then
         return
     elif [[ "$Download_before_install" == "true" ]]; then
-        initialize_download
+        if ! check_network; then
+            Aurora_ui_print "$CHECK_NETWORK"
+            return
+        fi
+
+        for var in $(env | grep '^LINKS_' | cut -d= -f1); do
+            link=$(eval echo \$"$var")
+            if [ -n "$link" ]; then
+                download_file "$link"
+            fi
+        done
         initialize_install "$download_destination/"
     else
         Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
     fi
+}
+#About_the_custom_script
+###############
+mv_adb() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "mv_adb(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
+    su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 un7z() {
     if [[ -z "$1" ]]; then
@@ -427,12 +425,6 @@ un7z() {
         Aurora_ui_print "$UNZIP_FINNSH"
     else
         Aurora_ui_print "$UNZIP_ERROR"
-    fi
-}
-if_un7z_zip() {
-    if [ -f "$MODDIR"/output.7z ]; then
-        un7z "$MODDIR/output.7z" "$MODPATH/files/"
-        rm "$MODDIR/output.7z"
     fi
 }
 aurora_flash_boot() {
@@ -453,9 +445,12 @@ magisk_denylist_add() {
         magisk --denylist add "$1" >/dev/null 2>&1
     fi
 }
-remove_files() {
-    rm -rf "$MODDIR/files/"
-    rm -rf "$MODDIR/prebuilts/"
+set_permissions_755() {
+    if [[ -z "$1" ]]; then
+        Aurora_ui_print "set_permissions_755(1)$WARN_MISSING_PARAMETERS"
+        return
+    fi
+    set_perm "$1" 0 0 0755
 }
 CustomShell() {
     if [[ "$CustomScript" == "false" ]]; then
@@ -467,6 +462,7 @@ CustomShell() {
         Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
 }
+###############
 ClearEnv() {
     rm -rf "$INSTALLER_MODPATH"
 }
