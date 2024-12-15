@@ -1,3 +1,5 @@
+#!/system/bin/sh
+
 current_dir=$(pwd)
 temp_dirs=("/tmp" "/var/tmp" "/Temp" "/Users/*/Library/Caches" "/storage/emulated/0/Android/data/bin.mt.plus/temp")
 for dir in "${temp_dirs[@]}"; do

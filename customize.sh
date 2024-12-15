@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/system/bin/sh
+
 main() {
     INSTALLER_MODPATH="$MODPATH"
     if [ ! -f "$MODPATH/settings/settings.sh" ]; then

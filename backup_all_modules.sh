@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/system/bin/sh
 
 TARGET_DIR="/data/adb/modules/"
 pwddir="$(pwd)"
