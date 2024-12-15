@@ -24,18 +24,6 @@ for DIR in "$TARGET_DIR"*/; do
 
     echo "Processing directory: $DIR_NAME"
 
-    if [ ! -f "$pwddir/META-INF/com/google/android/update-binary" ]; then
-        echo "缺失META-INF/com/google/android/update-binary文件"
-        exit 0
-    fi
-
-    if [ ! -f "$pwddir/META-INF/com/google/android/updater-script" ]; then
-        echo "缺失META-INF/com/google/android/updater-script文件"
-        exit 0
-    fi
-    mkdir -p "$DIR/META-INF/com/google/android/"
-    cp "$pwddir/META-INF/com/google/android/update-binary" "$DIR/META-INF/com/google/android/"
-    cp "$pwddir/META-INF/com/google/android/updater-script" "$DIR/META-INF/com/google/android/"
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
     /data/local/tmp/7zzs a -r -mx9 "$OUTPUT_FILE" "$DIR"/*
     rm -rf "$DIR/META-INF/"
