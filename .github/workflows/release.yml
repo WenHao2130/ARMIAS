@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 设置为 0 以获取所有标签历史
+
+      - name: Create necessary directories
+        run: |
+          mkdir -p files/modules
+          mkdir -p files/patches/{apks,modules,sdcard,data}
+          mkdir -p settings
+
+      - name: Install 7z
+        uses: edgarrc/action-7z@v1.0.5
+
+      - name: Get current time
+        run: |
+          echo "$(date +'%Y%m%d%H%M')" > current_time.txt
+      - name: Get latest tag
+        id: latest-tag
+        run: |
+            LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+            echo "$LATEST_TAG" > latest_tag.txt
+
+      - name: Compress repository for each language version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          CURRENT_TIME=$(cat current_time.txt)
+          languages=("en" "jp" "zh")
+
+          for lang in "${languages[@]}"; do
+            # 清理不必要的文件和目录
+            find languages -maxdepth 1 -mindepth 1 -type d ! -name "$lang" -exec rm -rf {} +
+            rm -f README.md README_*.md
+
+            # 处理特定语言的文件和目录
+            if [ -d "languages/$lang" ]; then
+              cp "languages/$lang"/* .
+              cp "languages/$lang"/custom_script.sh ./settings/
+              cp "languages/$lang"/settings.ini ./settings/settings.sh
+              rm -rf ./custom_script.sh ./settings.ini "languages/$lang"/*
+              rmdir "languages/$lang"
+              rmdir languages
+
+              # 设置模块属性
+              eval "lang_${lang}"
+              echo "id=AuroraNasa_Installer" > module.prop
+              echo "name=${MODULE_NAME}" >> module.prop
+              echo "version=${LATEST_TAG} ${GITHUB_SHA:0:7}" >> module.prop
+              echo "versionCode=${CURRENT_TIME}" >> module.prop
+              echo "author=AuroraNasa" >> module.prop
+              echo "description=${MODULE_DES}" >> module.prop
+
+              # 压缩文件
+              7z a -r -mx9 "ARMIAS_${LATEST_TAG}_${lang}_${GITHUB_SHA:0:7}.zip" * -x!*.git* -x!*.md -x!*.zip -x!current_time.txt -x!LICENSE
+              git checkout -- languages
+            fi
+          done
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ARMIAS_*.zip
