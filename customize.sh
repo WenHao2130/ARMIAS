@@ -150,23 +150,21 @@ initialize_install() {
             fi
         done
     done <"$temp_all_files"
-
+    mkdir -p "/data/adb/modules/zygisksu"
+    zygiskmodule="/data/adb/modules/zygisksu/module.prop"
+    echo "id=zygisksu" >"$zygiskmodule"
+    echo "name=Zygisk Placeholder" >>"$zygiskmodule"
+    echo "version=1.0" >>"$zygiskmodule"
+    echo "versionCode=462" >>"$zygiskmodule"
+    echo "author=null" >>"$zygiskmodule"
+    echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko" >>"$zygiskmodule"
+    touch "/data/adb/modules/zygisksu/remove"
     while IFS= read -r -d '' file; do
         grep -qFx "$file" "$temp_matching_files" || Installer "$file"
     done <"$temp_all_files"
 
     while IFS= read -r -d '' file; do
         if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
-            shamiko_found=false
-            if [[ -d "/data/adb/modules/zygisksu" ]]; then
-                shamiko_found=true
-                break
-            fi
-
-            if [ "$shamiko_found" = false ]; then
-                Aurora_ui_print "$WARN_SHAMIKO_ZYGISK_FILES_FOUND"
-                sleep 5
-            fi
             SKIP_INSTALL_SHAMIKO=false
             if [[ "$APATCH" = true ]]; then
                 Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
@@ -331,7 +329,7 @@ download_file() {
         return
     fi
     local link=$1
-    local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//'
+    local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//')
     local local_path="$download_destination/$filename"
     local retry_count=0
     local wget_file=$(mktemp)
