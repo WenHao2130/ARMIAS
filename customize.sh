@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/system/bin/sh
+
 main() {
+    INSTALLER_MODPATH="$MODPATH"
     if [ ! -f "$MODPATH/settings/settings.sh" ]; then
         abort "Notfound File!!!(settings.sh)"
     else
@@ -12,9 +14,9 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    curl="$MODPATH"/curl
-    jq="$MODPATH"/jq
-    zips="$MODPATH"/7zzs
+    curl="$MODPATH"/prebuilts/curl
+    jq="$MODPATH"/prebuilts/jq
+    zips="$MODPATH"/prebuilts/7zzs
     set_permissions_755 "$curl"
     set_permissions_755 "$jq"
     if_un7z_zip
@@ -22,6 +24,7 @@ main() {
     patches_install
     CustomShell
     remove_files
+    ClearEnv
 }
 #######################################################
 Aurora_ui_print() {
@@ -452,9 +455,7 @@ magisk_denylist_add() {
 }
 remove_files() {
     rm -rf "$MODDIR/files/"
-    rm -f "$MODDIR/curl"
-    rm -f "$MODDIR/jq"
-    rm -f "$MODDIR/7zzs"
+    rm -rf "$MODDIR/prebuilts/"
 }
 CustomShell() {
     if [[ "$CustomScript" == "false" ]]; then
@@ -465,6 +466,9 @@ CustomShell() {
     else
         Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
+}
+ClearEnv() {
+    rm -rf "$INSTALLER_MODPATH"
 }
 ##########################################################
 main
