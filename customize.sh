@@ -364,9 +364,11 @@ download_file() {
 sclect_settings_install_on_main() {
     jq="$MODPATH"/prebuilts/jq
     zips="$MODPATH"/prebuilts/7zzs
-    if [ -f "$MODDIR"/output.7z ]; then
-        un7z "$MODDIR/output.7z" "$MODPATH/files/"
-        rm "$MODDIR/output.7z"
+    set_permissions_755 "$jq"
+    set_permissions_755 "$zips"
+    if [ -f "$MODPATH"/output.7z ]; then
+        un7z "$MODPATH/output.7z" "$MODPATH/files/"
+        rm "$MODPATH/output.7z"
     fi
     if [[ "$install" == "false" ]]; then
         return
@@ -412,7 +414,7 @@ un7z() {
         Aurora_ui_print "un7z(2)$WARN_MISSING_PARAMETERS"
         return
     fi
-    "$zips" x "$1" -o"$2" >/dev/null 2>&1
+    $zips x "$1" -o"$2" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
     else
