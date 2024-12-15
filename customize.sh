@@ -298,26 +298,31 @@ github_get_url() {
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
-    local curl_response_file=$(mktemp)
-    $curl --silent --show-error "$API_URL" >"$curl_response_file"
+    local wget_response_file=$(mktemp)
+
+    wget -S --output-document="$wget_response_file" "$API_URL"
     if [ $? -ne 0 ]; then
-        rm -f "$curl_response_file" "$TEMP_FILE"
-        Aurora_abort "curl $COMMAND_FAILED"
+        rm -f "$wget_response_file"
+        Aurora_abort "wget $COMMAND_FAILED"
     fi
+
     local TEMP_FILE=$(mktemp)
-    $jq -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url' "$curl_response_file" >"$TEMP_FILE"
+
+    $jq -r '.assets[] | select(.name | test("'"$SEARCH_CHAR"'")) | .browser_download_url' "$wget_response_file" >"$TEMP_FILE"
     if [ $? -ne 0 ]; then
-        rm -f "$curl_response_file" "$TEMP_FILE"
+        rm -f "$wget_response_file" "$TEMP_FILE"
         Aurora_abort "jq $COMMAND_FAILED"
     fi
+
     DESIRED_DOWNLOAD_URL=$(cat "$TEMP_FILE")
     if [ -z "$DESIRED_DOWNLOAD_URL" ]; then
-        rm -f "$curl_response_file" "$TEMP_FILE"
+        rm -f "$wget_response_file" "$TEMP_FILE"
         Aurora_ui_print "$NOTFOUND_URL"
         return 1
     fi
+
     Aurora_ui_print "$DESIRED_DOWNLOAD_URL"
-    rm -f "$curl_response_file" "$TEMP_FILE"
+    rm -f "$wget_response_file" "$TEMP_FILE"
     return 0
 }
 download_file() {
@@ -326,27 +331,21 @@ download_file() {
         return
     fi
     local link=$1
-    local filename=$(echo "$link" | grep -oP 'filename=\K[^&]+')
-    if [[ -z "$filename" || "$filename" == */* ]]; then
-        filename=$(echo "$link" | sed -e 's|.*/\([^?#]*\).*$|\1|')
-    fi
+    local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//'
     local local_path="$download_destination/$filename"
     local retry_count=0
-    local curl_file=$(mktemp)
+    local wget_file=$(mktemp)
     mkdir -p "$download_destination"
-    $curl -sI "$link" | grep 'Content-Length' | awk '{print $2}' >"$curl_file"
-    if [ $? -ne 0 ]; then
-        rm -f "$curl_file"
-        Aurora_abort "curl $COMMAND_FAILED"
-    fi
-    file_size_bytes=$(cat "$curl_file")
+
+    wget -S --spider "$link" 2>&1 | grep 'Content-Length:' | awk '{print $2}' >"$wget_file"
+    file_size_bytes=$(cat "$wget_file")
     if [[ -z "$file_size_bytes" ]]; then
         Aurora_ui_print "$FAILED_TO_GET_FILE_SIZE $link"
     fi
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
     while [ $retry_count -lt $max_retries ]; do
-        wget -q --show-progress --output-document="$local_path.tmp" "$link"
+        wget --output-document="$local_path.tmp" "$link"
         if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
             Aurora_ui_print "$DOWNLOAD_SUCCEEDED $local_path"
@@ -369,7 +368,6 @@ download_file() {
 }
 ##############
 sclect_settings_install_on_main() {
-    curl="$MODPATH"/prebuilts/curl
     jq="$MODPATH"/prebuilts/jq
     zips="$MODPATH"/prebuilts/7zzs
     if [ -f "$MODDIR"/output.7z ]; then
