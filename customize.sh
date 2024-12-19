@@ -14,7 +14,6 @@ main() {
         eval "lang_$print_languages"
     fi
     version_check
-    if_un7z_zip
     sclect_settings_install_on_main
     patches_install
     CustomShell
