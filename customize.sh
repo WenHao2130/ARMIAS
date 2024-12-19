@@ -149,8 +149,9 @@ initialize_install() {
             fi
         done
     done <"$temp_all_files"
-    mkdir -p "/data/adb/modules/zygisksu"
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
+if [ ! -f "$zygiskmodule" ];then
+ mkdir -p "/data/adb/modules/zygisksu"
     echo "id=zygisksu" >"$zygiskmodule"
     echo "name=Zygisk Placeholder" >>"$zygiskmodule"
     echo "version=1.0" >>"$zygiskmodule"
@@ -158,6 +159,7 @@ initialize_install() {
     echo "author=null" >>"$zygiskmodule"
     echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko" >>"$zygiskmodule"
     touch "/data/adb/modules/zygisksu/remove"
+fi
     while IFS= read -r -d '' file; do
         grep -qFx "$file" "$temp_matching_files" || Installer "$file"
     done <"$temp_all_files"
