@@ -131,15 +131,23 @@ initialize_install() {
     local dir="$1"
     local temp_matching_files=$(mktemp)
     local temp_all_files=$(mktemp)
-
-    shopt -s nocasematch
+    local temp_zip_files=$(mktemp)
+    local zip_temp_dir=$(mktemp -d)
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
-        shopt -u nocasematch
         rm -f "$temp_matching_files" "$temp_all_files"
+        rmdir "$zip_temp_dir"
         return
     fi
+    find "$dir" -maxdepth 1 -type d | sort >"$temp_zip_files"
+    while IFS= read -r file; do
+        if [ -d "$file" ]; then
+            local zip_file="$dir/$(basename "$file").zip"
+            zip -r "$zip_file" "$file" >/dev/null 2>&1
+            rm -rf "$file"
+        fi
+    done <"$temp_zip_files"
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
     while IFS= read -r -d '' file; do
         for pattern in $delayed_patterns; do
@@ -150,16 +158,16 @@ initialize_install() {
         done
     done <"$temp_all_files"
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
-if [ ! -f "$zygiskmodule" ];then
- mkdir -p "/data/adb/modules/zygisksu"
-    echo "id=zygisksu" >"$zygiskmodule"
-    echo "name=Zygisk Placeholder" >>"$zygiskmodule"
-    echo "version=1.0" >>"$zygiskmodule"
-    echo "versionCode=462" >>"$zygiskmodule"
-    echo "author=null" >>"$zygiskmodule"
-    echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko" >>"$zygiskmodule"
-    touch "/data/adb/modules/zygisksu/remove"
-fi
+    if [ ! -f "$zygiskmodule" ]; then
+        mkdir -p "/data/adb/modules/zygisksu"
+        echo "id=zygisksu" >"$zygiskmodule"
+        echo "name=Zygisk Placeholder" >>"$zygiskmodule"
+        echo "version=1.0" >>"$zygiskmodule"
+        echo "versionCode=462" >>"$zygiskmodule"
+        echo "author=null" >>"$zygiskmodule"
+        echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko" >>"$zygiskmodule"
+        touch "/data/adb/modules/zygisksu/remove"
+    fi
     while IFS= read -r -d '' file; do
         grep -qFx "$file" "$temp_matching_files" || Installer "$file"
     done <"$temp_all_files"
@@ -386,12 +394,12 @@ sclect_settings_install_on_main() {
             return
         fi
 
-        for var in $(env | grep '^LINKS_' | cut -d= -f1); do
-            link=$(eval echo \$"$var")
-            if [ -n "$link" ]; then
-                download_file "$link"
-            fi
-        done
+for var in $(env | grep '^LINKS_' | cut -d= -f1); do
+    link=${!var}
+    if [ -n "$link" ]; then
+        download_file "$link"
+    fi
+done
         initialize_install "$download_destination/"
     else
         Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
