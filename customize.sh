@@ -31,6 +31,11 @@ Aurora_abort() {
     ui_print "$ERROR_TEXT: $1"
     abort "$ERROR_CODE_TEXT: $2"
 }
+Aurora_test_input() {
+    if [[ -z "$3" ]]; then
+        Aurora_ui_print "$1 ( $2 ) $WARN_MISSING_PARAMETERS"
+    fi
+}
 #######################################################
 version_check() {
     if [[ -n $KSU_VER_CODE ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
@@ -58,10 +63,7 @@ Installer_Compatibility_mode() {
 }
 
 Installer() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "Installer(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+    Aurora_test_input "Installer" "1" "$1"
     if [[ "$Installer_Log" != "false" ]] && [[ "$Installer_Log" != "true" ]]; then
         Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
@@ -251,14 +253,8 @@ key_select() {
     done
 }
 key_installer() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "key_installer(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
-    if [[ -z "$2" ]]; then
-        Aurora_ui_print "key_installer(2)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "key_installer" "1" "$1"
+Aurora_test_input "key_installer" "2" "$2"
     if [ "$3" != "" ] && [ "$4" != "" ]; then
         Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $3"
         Aurora_ui_print "${KEY_VOLUME}-${KEY_VOLUME_INSTALL_MODULE} $4"
@@ -294,14 +290,8 @@ check_network() {
     fi
 }
 github_get_url() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "github_get_url(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
-    if [[ -z "$2" ]]; then
-        Aurora_ui_print "github_get_url(2)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "github_get_url" "1" "$1"
+Aurora_test_input "github_get_url" "2" "$2"
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
@@ -329,10 +319,7 @@ github_get_url() {
     return 0
 }
 download_file() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "download_file(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "download_file" "1" "$1"
     local link=$1
     local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//')
     local local_path="$download_destination/$filename"
@@ -408,21 +395,12 @@ done
 #About_the_custom_script
 ###############
 mv_adb() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "mv_adb(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "mv_adb" "1" "$1"
     su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 un7z() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "un7z(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
-    if [[ -z "$2" ]]; then
-        Aurora_ui_print "un7z(2)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "un7z" "1" "$1"
+Aurora_test_input "un7z" "2" "$2"
     $zips x "$1" -o"$2" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
@@ -431,28 +409,19 @@ un7z() {
     fi
 }
 aurora_flash_boot() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "aurora_flash_boot(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "aurora_flash_boot" "1" "$1"
     get_flags
     find_boot_image
     flash_image "$1" "$BOOTIMAGE"
 }
 magisk_denylist_add() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "magisk_denylist_add(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "magisk_denylist_add" "1" "$1"
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
     fi
 }
 set_permissions_755() {
-    if [[ -z "$1" ]]; then
-        Aurora_ui_print "set_permissions_755(1)$WARN_MISSING_PARAMETERS"
-        return
-    fi
+Aurora_test_input "set_permissions_755" "1" "$1"
     set_perm "$1" 0 0 0755
 }
 CustomShell() {
