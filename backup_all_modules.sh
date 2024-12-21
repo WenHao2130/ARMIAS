@@ -5,7 +5,7 @@ pwddir="$(pwd)"
 OUTPUT_DIR="$pwddir/files/modules/"
 temp_dirs=("/tmp" "/temp" "/Temp" "/TEMP" "/TMP" "/Android/data")
 for dir in "${temp_dirs[@]}"; do
-    if [[ $current_dir == *"$dir"* ]]; then
+    if [[ $pwddir == *"$dir"* ]]; then
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
