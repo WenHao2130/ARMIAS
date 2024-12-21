@@ -134,22 +134,20 @@ initialize_install() {
     local temp_matching_files=$(mktemp)
     local temp_all_files=$(mktemp)
     local temp_zip_files=$(mktemp)
-    local zip_temp_dir=$(mktemp -d)
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
         rm -f "$temp_matching_files" "$temp_all_files"
-        rmdir "$zip_temp_dir"
         return
     fi
-    find "$dir" -maxdepth 1 -type d | sort >"$temp_zip_files"
-    while IFS= read -r file; do
-        if [ -d "$file" ]; then
-            local zip_file="$dir/$(basename "$file").zip"
-            zip -r "$zip_file" "$file" >/dev/null 2>&1
-            rm -rf "$file"
+    for entry in "$dir"/*; do
+        if [ -d "$entry" ]; then
+            local dirname=$(basename "$entry")
+            local zip_file="$dir/$dirname.zip"
+            zip -r "$zip_file" "$entry" >/dev/null 2>&1
+            rm -rf "$entry"
         fi
-    done <"$temp_zip_files"
+    done
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
     while IFS= read -r -d '' file; do
         for pattern in $delayed_patterns; do
@@ -253,8 +251,8 @@ key_select() {
     done
 }
 key_installer() {
-Aurora_test_input "key_installer" "1" "$1"
-Aurora_test_input "key_installer" "2" "$2"
+    Aurora_test_input "key_installer" "1" "$1"
+    Aurora_test_input "key_installer" "2" "$2"
     if [ "$3" != "" ] && [ "$4" != "" ]; then
         Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $3"
         Aurora_ui_print "${KEY_VOLUME}-${KEY_VOLUME_INSTALL_MODULE} $4"
@@ -290,8 +288,8 @@ check_network() {
     fi
 }
 github_get_url() {
-Aurora_test_input "github_get_url" "1" "$1"
-Aurora_test_input "github_get_url" "2" "$2"
+    Aurora_test_input "github_get_url" "1" "$1"
+    Aurora_test_input "github_get_url" "2" "$2"
     local owner_repo="$1"
     local SEARCH_CHAR="$2"
     local API_URL="https://api.github.com/repos/${owner_repo}/releases/latest"
@@ -319,7 +317,7 @@ Aurora_test_input "github_get_url" "2" "$2"
     return 0
 }
 download_file() {
-Aurora_test_input "download_file" "1" "$1"
+    Aurora_test_input "download_file" "1" "$1"
     local link=$1
     local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//')
     local local_path="$download_destination/$filename"
@@ -381,12 +379,12 @@ sclect_settings_install_on_main() {
             return
         fi
 
-for var in $(env | grep '^LINKS_' | cut -d= -f1); do
-    link=${!var}
-    if [ -n "$link" ]; then
-        download_file "$link"
-    fi
-done
+        for var in $(env | grep '^LINKS_' | cut -d= -f1); do
+            link=${!var}
+            if [ -n "$link" ]; then
+                download_file "$link"
+            fi
+        done
         initialize_install "$download_destination/"
     else
         Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
@@ -395,12 +393,12 @@ done
 #About_the_custom_script
 ###############
 mv_adb() {
-Aurora_test_input "mv_adb" "1" "$1"
+    Aurora_test_input "mv_adb" "1" "$1"
     su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 un7z() {
-Aurora_test_input "un7z" "1" "$1"
-Aurora_test_input "un7z" "2" "$2"
+    Aurora_test_input "un7z" "1" "$1"
+    Aurora_test_input "un7z" "2" "$2"
     $zips x "$1" -o"$2" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
@@ -409,19 +407,19 @@ Aurora_test_input "un7z" "2" "$2"
     fi
 }
 aurora_flash_boot() {
-Aurora_test_input "aurora_flash_boot" "1" "$1"
+    Aurora_test_input "aurora_flash_boot" "1" "$1"
     get_flags
     find_boot_image
     flash_image "$1" "$BOOTIMAGE"
 }
 magisk_denylist_add() {
-Aurora_test_input "magisk_denylist_add" "1" "$1"
+    Aurora_test_input "magisk_denylist_add" "1" "$1"
     if [ -z "$KSU" ] && [ -z "$APATCH" ] && [ -n "$MAGISK_VER_CODE" ]; then
         magisk --denylist add "$1" >/dev/null 2>&1
     fi
 }
 set_permissions_755() {
-Aurora_test_input "set_permissions_755" "1" "$1"
+    Aurora_test_input "set_permissions_755" "1" "$1"
     set_perm "$1" 0 0 0755
 }
 CustomShell() {
