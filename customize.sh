@@ -68,13 +68,7 @@ Installer() {
         Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [ "$2" != "" ]; then
-        if [[ "$2" = "KSU" ]] && [[ "$KSU" != true ]]; then
-            return
-        fi
-        if [[ "$2" = "APATCH" ]] && [[ "$APATCH" != true ]]; then
-            return
-        fi
-        if [[ "$2" = "MAGISK" ]] && [[ -z "$APATCH" ]] && [[ -z "$KSU" ]] && [[ "$MAGISK_VER_CODE" != "" ]]; then
+        if [[ "$2" = "KSU" && "$KSU" != true ]] || [[ "$2" = "APATCH" && "$APATCH" != true ]] || [[ "$2" = "MAGISK" && -z "$APATCH" && -z "$KSU" && -n "$MAGISK_VER_CODE" ]]; then
             return
         fi
     fi
@@ -434,7 +428,11 @@ CustomShell() {
 }
 ###############
 ClearEnv() {
-    rm -rf "$INSTALLER_MODPATH"
+    find "$INSTALLER_MODPATH" ! -name "module.prop" -exec rm -rf {} \;
+    if [ "$APATCH" != true ]; then
+        cp "$INSTALLER_MODPATH/module.prop" "data/adb/modules/AuroraNasaInstaller/module.prop"
+        rm -rf "$INSTALLER_MODPATH"
+    fi
 }
 ##########################################################
 main
