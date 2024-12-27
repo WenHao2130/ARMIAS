@@ -4,6 +4,7 @@
 # shellcheck disable=SC3043
 # shellcheck disable=SC2155
 # shellcheck disable=SC2046
+# shellcheck disable=SC3045
 main() {
     INSTALLER_MODPATH="$MODPATH"
     if [ ! -f "$MODPATH/settings/settings.sh" ]; then
@@ -147,9 +148,11 @@ initialize_install() {
         fi
     done
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
-    while IFS= read -r file; do
+        find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
+    while IFS= read -r -d '' file; do
         for pattern in $delayed_patterns; do
-            if echo "$file" | grep -qF "$pattern"; then
+            # shellcheck disable=SC3010
+            if [[ "$file" == *"$pattern"* ]]; then
                 echo "$file" >>"$temp_matching_files"
                 break
             fi
@@ -168,25 +171,21 @@ initialize_install() {
         } >>"$zygiskmodule"
         touch "/data/adb/modules/zygisksu/remove"
     fi
-    while IFS= read -r file; do
-        grep -qFx "$file" "$temp_matching_files" 2>/dev/null || {
-            Installer "$file"
-        }
+    while IFS= read -r -d '' file; do
+        grep -qFx "$file" "$temp_matching_files" || Installer "$file"
     done <"$temp_all_files"
-    while IFS= read -r file; do
-        case "$file" in
-        *Shamiko*)
-            if [ "$KSU" = true ] || [ "$APATCH" = true ]; then
-                SKIP_INSTALL_SHAMIKO=false
-                if [ "$APATCH" = true ]; then
-                    Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
-                    key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
-                    SKIP_INSTALL_SHAMIKO=true
-                fi
+
+    while IFS= read -r -d '' file; do
+        # shellcheck disable=SC3010
+        if [[ "$file" == *Shamiko* ]] && ([ "$KSU" = true ] || [ "$APATCH" = true ]); then
+            SKIP_INSTALL_SHAMIKO=false
+            if [ "$APATCH" = true ]; then
+                Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
+                key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
+                SKIP_INSTALL_SHAMIKO=true
             fi
-            ;;
-        *) ;;
-        esac
+        fi
+
         if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
             Installer "$file"
         fi
