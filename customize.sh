@@ -278,6 +278,7 @@ key_installer() {
 key_installer_once() {
     Aurora_test_input "key_installer_once" "1" "$1"
     Aurora_test_input "key_installer_once" "2" "$2"
+    key_select
     Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $2"
     Aurora_ui_print "${KEY_VOLUME}-${PRESS_VOLUME_SKIP}"
     if [ "$key_pressed" = "KEY_VOLUMEUP" ]; then
