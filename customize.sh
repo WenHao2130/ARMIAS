@@ -22,13 +22,12 @@ main() {
 }
 #######################################################
 Aurora_ui_print() {
-    sleep 0.05
-    ui_print ""
-    ui_print "- $1"
+    sleep 0.02
+    ui_print "[${OUTPUT}] $1"
 }
 
 Aurora_abort() {
-    ui_print "$ERROR_TEXT: $1"
+    ui_print "[${ERROR_TEXT}] $1"
     abort "$ERROR_CODE_TEXT: $2"
 }
 Aurora_test_input() {
@@ -186,7 +185,6 @@ initialize_install() {
     fi
 
     rm -f "$temp_matching_files" "$temp_all_files"
-    shopt -u nocasematch
 }
 
 patch_default() {
