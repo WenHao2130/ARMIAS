@@ -177,6 +177,7 @@ initialize_install() {
 
     while IFS= read -r -d '' file; do
         # shellcheck disable=SC3010
+        # shellcheck disable=SC2235
         if [[ "$file" == *Shamiko* ]] && ([ "$KSU" = true ] || [ "$APATCH" = true ]); then
             SKIP_INSTALL_SHAMIKO=false
             if [ "$APATCH" = true ]; then
@@ -320,8 +321,8 @@ github_get_url() {
 }
 download_file() {
     Aurora_test_input "download_file" "1" "$1"
-    local link=$1
-    local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename=.*$' | sed -e 's/filename=//')
+    local link="$1"
+    local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename="[^"]*"' | sed -e 's/^filename="//' -e 's/"$//')
     local local_path="$download_destination/$filename"
     local retry_count=0
     local wget_file=$(mktemp)
@@ -334,7 +335,7 @@ download_file() {
     fi
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
     Aurora_ui_print "$DOWNLOADING $filename $file_size_mb MB"
-    while [ $retry_count -lt $max_retries ]; do
+    while [ $retry_count -lt "$max_retries" ]; do
         wget --output-document="$local_path.tmp" "$link"
         if [ -s "$local_path.tmp" ]; then
             mv "$local_path.tmp" "$local_path"
