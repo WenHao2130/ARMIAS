@@ -7,12 +7,13 @@ for dir in "${temp_dirs[@]}"; do
     if [[ $current_dir == *"$dir"* ]]; then
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
-        echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
+        echo "The current directory is a temporary directory or its subdirectory. Please extract to another directory before executing the script."
         exit 0
     fi
 done
 if [ "$(whoami)" != "root" ]; then
-   echo "此脚本必须以root权限运行。请使用root用户身份运行此脚本。" >&2
+   echo "此脚本必须以root权限运行。请使用root用户身份运行此脚本。"
+   echo "This script must be run with root privileges. Please run this script as a root user."
    exit 1
 fi
 echo "脚本正在以root权限运行。"
