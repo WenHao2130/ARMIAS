@@ -170,7 +170,17 @@ initialize_install() {
         touch "/data/adb/modules/zygisksu/remove"
     fi
     while IFS= read -r -d '' file; do
-        grep -qFx "$file" "$temp_matching_files" || Installer "$file"
+        grep -qFx "$file" "$temp_matching_files" || {
+            if [ "$Confirm_installation" = "false" ]; then
+                Installer "$file"
+            elif [ "$Confirm_installation" = "true" ]; then
+                Aurora_ui_print "$CUSTOM_SCRIPT_ENABLED"
+                local file_name=$(basename "$file")
+                key_installer_once "$file" "$file_name"
+            else
+                Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
+            fi
+        }
     done <"$temp_all_files"
 
     while IFS= read -r -d '' file; do
@@ -180,7 +190,7 @@ initialize_install() {
             SKIP_INSTALL_SHAMIKO=false
             if [ "$APATCH" = true ]; then
                 Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
-                key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
+                key_installer_once "$file" Shamiko
                 SKIP_INSTALL_SHAMIKO=true
             fi
         fi
@@ -263,6 +273,15 @@ key_installer() {
         Installer "$1"
     else
         Installer "$2"
+    fi
+}
+key_installer_once() {
+    Aurora_test_input "key_installer_once" "1" "$1"
+    Aurora_test_input "key_installer_once" "2" "$2"
+    Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $2"
+    Aurora_ui_print "${KEY_VOLUME}-${PRESS_VOLUME_SKIP}"
+    if [ "$key_pressed" = "KEY_VOLUMEUP" ]; then
+        Installer "$1"
     fi
 }
 #Abort Internet Connection
