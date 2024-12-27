@@ -139,16 +139,14 @@ initialize_install() {
         rm -f "$temp_matching_files" "$temp_all_files"
         return
     fi
-    for entry in "$dir"/*; do
-        if [ -d "$entry" ]; then
-            local dirname=$(basename "$entry")
-            local zip_file="$dir/$dirname.zip"
-            zip -r "$zip_file" "$entry" >/dev/null 2>&1
-            rm -rf "$entry"
-        fi
+    find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r entry; do
+        local dirname=$(basename "$entry")
+        local zip_file="$dir/$dirname.zip"
+        zip -r "$zip_file" "$entry" >/dev/null 2>&1
+        rm -rf "$entry"
     done
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
-        find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
+    find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
     while IFS= read -r -d '' file; do
         for pattern in $delayed_patterns; do
             # shellcheck disable=SC3010
@@ -386,11 +384,11 @@ sclect_settings_install_on_main() {
 
     while [ $network_counter -le 20 ]; do
         var_name="LINKS_${network_counter}"
-            eval "link=\$${var_name}"
+        eval "link=\$${var_name}"
 
-            if [ -n "$link" ]; then
-                download_file "$link"
-            fi
+        if [ -n "$link" ]; then
+            download_file "$link"
+        fi
         network_counter=$((network_counter + 1))
     done
     initialize_install "$download_destination/"
