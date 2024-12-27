@@ -31,6 +31,10 @@
 # 使key_installer "$MODPATH/上键模块路径.zip" "$MODPATH/下键模块路径.zip" "需要打印的上键模块名" "需要打印的下键模块名" #来通过音量键选择安装的模块。
 # 如果不填写模块名称，安装时不会显示相关提示。、
 
+# 示例：音量键选择是否安装模块
+# -----------------
+# key_installer_once "$MODPATH/模块路径.zip" "需要打印的模块名" #来通过音量键选择是否安装模块。
+
 # 示例：从Github仓库中获取最新release文件链接
 # github_get_url "仓库作者/仓库名称" "需要release中包含的文件名"
 # 输出链接地址在 $DESIRED_DOWNLOAD_URL 变量中

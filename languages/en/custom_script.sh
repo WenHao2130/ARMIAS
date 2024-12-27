@@ -25,11 +25,15 @@
 # Example: Extract a single file
 # ----------------
 # un7z "Filename to be extracted" "Destination folder" # to extract the specified file.
+
 # Example: Volume Key Selection for Module Installation
 # ---------------------
 # Use key_installer "$MODPATH/upper_key_module_path.zip" "$MODPATH/lower_key_module_path.zip" "Upper key module name to be printed" "Lower key module name to be printed" # to select the module to install via volume keys.
 # If the module name is not provided, relevant prompts will not be displayed during installation.
 
+# Example: Use volume keys to select whether to install a module
+# -----------------
+# key_installer_once "$MODPATH/module_path.zip" "Module name to be printed" # Use volume keys to select whether to install the module.
 # Example: Getting the Latest Release File Link from a Github Repository
 # github_get_url "repository_owner/repository_name" "filename_to_be_included_in_release"
 # The output link address is stored in the $DESIRED_DOWNLOAD_URL variable.
