@@ -170,17 +170,25 @@ initialize_install() {
         touch "/data/adb/modules/zygisksu/remove"
     fi
     while IFS= read -r -d '' file; do
-        grep -qFx "$file" "$temp_matching_files" || {
+        found=false
+
+        while IFS= read -r line; do
+            if [ "$line" = "$file" ]; then
+                found=true
+                break
+            fi
+        done <"$temp_matching_files"
+
+        if [ "$found" = false ]; then
             if [ "$Confirm_installation" = "false" ]; then
                 Installer "$file"
             elif [ "$Confirm_installation" = "true" ]; then
-                Aurora_ui_print "$CUSTOM_SCRIPT_ENABLED"
                 local file_name=$(basename "$file")
                 key_installer_once "$file" "$file_name"
             else
                 Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
             fi
-        }
+        fi
     done <"$temp_all_files"
 
     while IFS= read -r -d '' file; do
