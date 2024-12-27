@@ -146,7 +146,7 @@ initialize_install() {
         rm -rf "$entry"
     done
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
-    find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
+
     while IFS= read -r -d '' file; do
         for pattern in $delayed_patterns; do
             # shellcheck disable=SC3010
@@ -170,16 +170,7 @@ initialize_install() {
         touch "/data/adb/modules/zygisksu/remove"
     fi
     while IFS= read -r -d '' file; do
-        found=false
-
-        while IFS= read -r line; do
-            if [ "$line" = "$file" ]; then
-                found=true
-                break
-            fi
-        done <"$temp_matching_files"
-
-        if [ "$found" = false ]; then
+        grep -qFx "$file" "$temp_matching_files" || {
             if [ "$Confirm_installation" = "false" ]; then
                 Installer "$file"
             elif [ "$Confirm_installation" = "true" ]; then
@@ -188,7 +179,7 @@ initialize_install() {
             else
                 Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
             fi
-        fi
+        }
     done <"$temp_all_files"
 
     while IFS= read -r -d '' file; do
@@ -286,9 +277,9 @@ key_installer() {
 key_installer_once() {
     Aurora_test_input "key_installer_once" "1" "$1"
     Aurora_test_input "key_installer_once" "2" "$2"
-    key_select
     Aurora_ui_print "${KEY_VOLUME}+${KEY_VOLUME_INSTALL_MODULE} $2"
     Aurora_ui_print "${KEY_VOLUME}-${PRESS_VOLUME_SKIP}"
+    key_select
     if [ "$key_pressed" = "KEY_VOLUMEUP" ]; then
         Installer "$1"
     fi
