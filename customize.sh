@@ -293,16 +293,15 @@ check_network() {
     local github_status=$?
     ping -c 1 google.com >/dev/null 2>&1
     local google_status=$?
-
-    if [ $baidu_status -eq 0 ]; then
-        Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
-        Internet_CONN=1
-    elif [ $google_status -eq 0 ]; then
+    if [ $google_status -eq 0 ]; then
         Aurora_ui_print "$INTERNET_CONNET (Google)"
-        Internet_CONN=2
+        Internet_CONN=3
     elif [ $github_status -eq 0 ]; then
         Aurora_ui_print "$INTERNET_CONNET (GitHub)"
-        Internet_CONN=3
+        Internet_CONN=2
+    elif [ $baidu_status -eq 0 ]; then
+        Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
+        Internet_CONN=1
     else
         Internet_CONN=
     fi
