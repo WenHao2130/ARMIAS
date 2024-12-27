@@ -1,6 +1,7 @@
 #!/system/bin/sh
-
+TARGET_DIR="/data/adb/modules/"
 current_dir=$(pwd)
+OUTPUT_DIR="$pwddir/files/modules/"
 zip7z="/data/local/tmp/7zzs"
 temp_dirs=("/tmp" "/temp" "/Temp" "/TEMP" "/TMP" "/Android/data")
 for dir in "${temp_dirs[@]}"; do
@@ -19,6 +20,15 @@ fi
 echo "脚本正在以root权限运行。"
 cp "$current_dir/prebuilts/7zzs" "/data/local/tmp/"
 chmod 777 "$zip7z"
+for DIR in "$TARGET_DIR"*/; do
+    if [ ! -d "$DIR" ]; then
+        continue
+    fi
+    DIR_NAME=$(basename "$DIR")
+    echo "Processing directory: $DIR_NAME"
+    cp -r "$DIR" "$OUTPUT_DIR"
+done
+echo "All files have been copied to $OUTPUT_DIR"
 $zip7z a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/*
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/output.7z"
