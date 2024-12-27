@@ -1,15 +1,21 @@
 #!/system/bin/sh
-
+# shellcheck disable=SC2034
+# shellcheck disable=SC2154
+# shellcheck disable=SC3043
+# shellcheck disable=SC2155
+# shellcheck disable=SC2046
 main() {
     INSTALLER_MODPATH="$MODPATH"
     if [ ! -f "$MODPATH/settings/settings.sh" ]; then
         abort "Notfound File!!!(settings.sh)"
     else
+        # shellcheck source=/dev/null
         . "$MODPATH/settings/settings.sh"
     fi
     if [ ! -f "$MODPATH/$langpath" ]; then
         abort "Notfound File!!!($langpath)"
     else
+        # shellcheck disable=SC1090
         . "$MODPATH/$langpath"
         eval "lang_$print_languages"
     fi
@@ -31,30 +37,29 @@ Aurora_abort() {
     abort "$ERROR_CODE_TEXT: $2"
 }
 Aurora_test_input() {
-    if [[ -z "$3" ]]; then
+    if [ -z "$3" ]; then
         Aurora_ui_print "$1 ( $2 ) $WARN_MISSING_PARAMETERS"
     fi
 }
 #######################################################
 version_check() {
-    if [[ -n $KSU_VER_CODE ]] && [[ $KSU_VER_CODE -lt $ksu_min_version || $KSU_KERNEL_VER_CODE -lt $ksu_min_kernel_version ]]; then
+    if [ -n "$KSU_VER_CODE" ] && [ "$KSU_VER_CODE" -lt "$ksu_min_version" ] || [ "$KSU_KERNEL_VER_CODE" -lt "$ksu_min_kernel_version" ]; then
         Aurora_abort "KernelSU: $ERROR_UNSUPPORTED_VERSION $KSU_VER_CODE ($ERROR_VERSION_NUMBER >= $ksu_min_version or kernelVersionCode >= $ksu_min_kernel_version)" 1
-    elif [[ -z "$APATCH" && -z "$KSU" && -n "$MAGISK_VER_CODE" ]] && ((MAGISK_VER_CODE < magisk_min_version)); then
-        Aurora_abort "Magisk: $ERROR_UNSUPPORTED_VERSION $MAGISK_VER_CODE ($ERROR_VERSION_NUMBER >= $magisk_min_version)" 1
-    elif [[ -n $APATCH_VER_CODE && $APATCH_VER_CODE -lt $apatch_min_version ]]; then
+    elif [ -z "$APATCH" ] && [ -z "$KSU" ] && [ -n "$MAGISK_VER_CODE" ] && [ "$MAGISK_VER_CODE" -le "$magisk_min_version" ]; then
+        Aurora_abort "Magisk: $ERROR_UNSUPPORTED_VERSION $MAGISK_VER_CODE ($ERROR_VERSION_NUMBER > $magisk_min_version)" 1
+    elif [ -n "$APATCH_VER_CODE" ] && [ "$APATCH_VER_CODE" -lt "$apatch_min_version" ]; then
         Aurora_abort "APatch: $ERROR_UNSUPPORTED_VERSION $APATCH_VER_CODE ($ERROR_VERSION_NUMBER >= $apatch_min_version)" 1
-    elif [[ $API -lt $ANDROID_API ]]; then
+    elif [ "$API" -lt "$ANDROID_API" ]; then
         Aurora_abort "Android API: $ERROR_UNSUPPORTED_VERSION $API ($ERROR_VERSION_NUMBER >= $ANDROID_API)" 2
     fi
 }
 
 Installer_Compatibility_mode() {
     MODPATHBACKUP=$MODPATH
-    # shellcheck disable=SC2034
     for ZIPFILE in $1; do
-        if [[ "$Installer_Log" == "false" ]]; then
+        if [ "$Installer_Log" = "false" ]; then
             install_module >/dev/null 2>&1
-        elif [[ "$Installer_Log" == "true" ]]; then
+        elif [ "$Installer_Log" = "true" ]; then
             install_module
         fi
     done
@@ -63,11 +68,11 @@ Installer_Compatibility_mode() {
 
 Installer() {
     Aurora_test_input "Installer" "1" "$1"
-    if [[ "$Installer_Log" != "false" ]] && [[ "$Installer_Log" != "true" ]]; then
+    if [ "$Installer_Log" != "false" ] && [ "$Installer_Log" != "true" ]; then
         Aurora_abort "Installer_Log$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [ "$2" != "" ]; then
-        if [[ "$2" = "KSU" && "$KSU" != true ]] || [[ "$2" = "APATCH" && "$APATCH" != true ]] || [[ "$2" = "MAGISK" && -z "$APATCH" && -z "$KSU" && -n "$MAGISK_VER_CODE" ]]; then
+        if [ "$2" = "KSU" ] && [ "$KSU" != true ] || [ "$2" = "APATCH" ] && [ "$APATCH" != true ] || [ "$2" = "MAGISK" ] && [ -z "$APATCH" ] && [ -z "$KSU" ] && [ -n "$MAGISK_VER_CODE" ]; then
             return
         fi
     fi
@@ -82,8 +87,8 @@ Installer() {
             Aurora_ui_print "APatch: $WARN_FORCED_COMPATIBILITY_MODE"
         fi
     fi
-    if [[ "$Installer_Compatibility" == "false" ]]; then
-        if [[ "$Installer_Log" == "false" ]]; then
+    if [ "$Installer_Compatibility" = "false" ]; then
+        if [ "$Installer_Log" = "false" ]; then
             Aurora_ui_print "$INSTALLER_LOG_DISABLED"
             if [ "$KSU" = true ]; then
                 ksud module install "$1" >/dev/null 2>&1
@@ -94,7 +99,7 @@ Installer() {
             else
                 Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
             fi
-        elif [[ "$Installer_Log" == "true" ]]; then
+        elif [ "$Installer_Log" = "true" ]; then
             if [ "$KSU" = true ]; then
                 ksud module install "$1"
             elif [ "$APATCH" = true ]; then
@@ -105,12 +110,12 @@ Installer() {
                 Aurora_abort "$ERROR_UPGRADE_ROOT_SCHEME" 3
             fi
         fi
-    elif [[ "$Installer_Compatibility" == "true" ]]; then
+    elif [ "$Installer_Compatibility" = "true" ]; then
         Installer_Compatibility_mode "$1"
     else
         Aurora_abort "Installer_Compatibility$ERROR_INVALID_LOCAL_VALUE" 4
     fi
-    if [[ "$fix_ksu_install" == "true" ]] && [[ "$KSU" = true ]] && [[ -z "$KSU_step_skip" ]]; then
+    if [ "$fix_ksu_install" = "true" ] && [ "$KSU" = true ] && [ -z "$KSU_step_skip" ]; then
         temp_dir="$MODPATH/TEMP_KSU"
         mkdir -p "$temp_dir"
         unzip -d "$temp_dir" "$1" >/dev/null 2>&1
@@ -142,9 +147,9 @@ initialize_install() {
         fi
     done
     find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
-    while IFS= read -r -d '' file; do
+    while IFS= read -r file; do
         for pattern in $delayed_patterns; do
-            if [[ "$file" == *"$pattern"* ]]; then
+            if echo "$file" | grep -qF "$pattern"; then
                 echo "$file" >>"$temp_matching_files"
                 break
             fi
@@ -153,33 +158,39 @@ initialize_install() {
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
     if [ ! -f "$zygiskmodule" ]; then
         mkdir -p "/data/adb/modules/zygisksu"
-        echo "id=zygisksu" >"$zygiskmodule"
-        echo "name=Zygisk Placeholder" >>"$zygiskmodule"
-        echo "version=1.0" >>"$zygiskmodule"
-        echo "versionCode=462" >>"$zygiskmodule"
-        echo "author=null" >>"$zygiskmodule"
-        echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko" >>"$zygiskmodule"
+        {
+            echo "id=zygisksu"
+            echo "name=Zygisk Placeholder"
+            echo "version=1.0"
+            echo "versionCode=462"
+            echo "author=null"
+            echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko"
+        } >>"$zygiskmodule"
         touch "/data/adb/modules/zygisksu/remove"
     fi
-    while IFS= read -r -d '' file; do
-        grep -qFx "$file" "$temp_matching_files" || Installer "$file"
+    while IFS= read -r file; do
+        grep -qFx "$file" "$temp_matching_files" 2>/dev/null || {
+            Installer "$file"
+        }
     done <"$temp_all_files"
-
-    while IFS= read -r -d '' file; do
-        if [[ "$file" == *Shamiko* ]] && ([[ "$KSU" = true ]] || [[ "$APATCH" = true ]]); then
-            SKIP_INSTALL_SHAMIKO=false
-            if [[ "$APATCH" = true ]]; then
-                Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
-                key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
-                SKIP_INSTALL_SHAMIKO=true
+    while IFS= read -r file; do
+        case "$file" in
+        *Shamiko*)
+            if [ "$KSU" = true ] || [ "$APATCH" = true ]; then
+                SKIP_INSTALL_SHAMIKO=false
+                if [ "$APATCH" = true ]; then
+                    Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
+                    key_installer "$file" "ZERO" "Shamiko" "$NOT_DO_INSTALL_SHAMIKO"
+                    SKIP_INSTALL_SHAMIKO=true
+                fi
             fi
-        fi
-
+            ;;
+        *) ;;
+        esac
         if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
             Installer "$file"
         fi
     done <"$temp_matching_files"
-
     if [ -z "$(cat "$temp_all_files")" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
@@ -228,7 +239,7 @@ key_select() {
         local output=$(/system/bin/getevent -qlc 1)
         local key_event=$(echo "$output" | awk '{ print $3 }' | grep 'KEY_')
         local key_status=$(echo "$output" | awk '{ print $4 }')
-        if [[ "$key_event" == *"KEY_"* && "$key_status" == "DOWN" ]]; then
+        if echo "$key_event" | grep -q 'KEY_' && [ "$key_status" = "DOWN" ]; then
             key_pressed="$key_event"
             break
         fi
@@ -237,7 +248,7 @@ key_select() {
         local output=$(/system/bin/getevent -qlc 1)
         local key_event=$(echo "$output" | awk '{ print $3 }' | grep 'KEY_')
         local key_status=$(echo "$output" | awk '{ print $4 }')
-        if [[ "$key_event" == "$key_pressed" && "$key_status" == "UP" ]]; then
+        if [ "$key_event" = "$key_pressed" ] && [ "$key_status" = "UP" ]; then
             break
         fi
     done
@@ -250,7 +261,7 @@ key_installer() {
         Aurora_ui_print "${KEY_VOLUME}-${KEY_VOLUME_INSTALL_MODULE} $4"
     fi
     key_select
-    if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
+    if [ "$key_pressed" = "KEY_VOLUMEUP" ]; then
         Installer "$1"
     else
         Installer "$2"
@@ -319,7 +330,7 @@ download_file() {
 
     wget -S --spider "$link" 2>&1 | grep 'Content-Length:' | awk '{print $2}' >"$wget_file"
     file_size_bytes=$(cat "$wget_file")
-    if [[ -z "$file_size_bytes" ]]; then
+    if [ -z "$file_size_bytes" ]; then
         Aurora_ui_print "$FAILED_TO_GET_FILE_SIZE $link"
     fi
     local file_size_mb=$(echo "scale=2; $file_size_bytes / 1048576" | bc)
@@ -341,7 +352,7 @@ download_file() {
     Aurora_ui_print "${KEY_VOLUME}+${PRESS_VOLUME_RETRY}"
     Aurora_ui_print "${KEY_VOLUME}-${PRESS_VOLUME_SKIP}"
     key_select
-    if [ "$key_pressed" == "KEY_VOLUMEUP" ]; then
+    if [ "$key_pressed" = "KEY_VOLUMEUP" ]; then
         download_file "$link"
     fi
     return 1
@@ -357,34 +368,30 @@ sclect_settings_install_on_main() {
         un7z "$MODPATH/output.7z" "$MODPATH/files/"
         rm "$MODPATH/output.7z"
     fi
-    if [[ "$install" == "false" ]]; then
+    if [ "$install" = "false" ]; then
         return
-    elif [[ "$install" == "true" ]]; then
+    elif [ "$install" = "true" ]; then
         initialize_install "$MODPATH/$ZIPLIST"
     else
         Aurora_abort "install$ERROR_INVALID_LOCAL_VALUE" 4
     fi
-    if [[ "$Download_before_install" == "false" ]]; then
+    if [ "$Download_before_install" = "false" ]; then
         return
-    elif [[ "$Download_before_install" == "true" ]]; then
+    elif [ "$Download_before_install" = "true" ]; then
         check_network
-    elif [[ -z "$Internet_CONN" ]]; then
+    elif [ -z "$Internet_CONN" ]; then
         Aurora_ui_print "$CHECK_NETWORK"
         return
     fi
 
     while [ $network_counter -le 20 ]; do
         var_name="LINKS_${network_counter}"
-
-        if [ -n "${!var_name}" ]; then
             eval "link=\$${var_name}"
 
             if [ -n "$link" ]; then
                 download_file "$link"
             fi
-        fi
-
-        ((network_counter++))
+        network_counter=$((network_counter + 1))
     done
     initialize_install "$download_destination/"
 }
@@ -421,22 +428,23 @@ set_permissions_755() {
     set_perm "$1" 0 0 0755
 }
 CustomShell() {
-    if [[ "$CustomScript" == "false" ]]; then
+    if [ "$CustomScript" = "false" ]; then
         Aurora_ui_print "$CUSTOM_SCRIPT_DISABLED"
-    elif [[ "$CustomScript" == "true" ]]; then
+    elif [ "$CustomScript" = "true" ]; then
         Aurora_ui_print "$CUSTOM_SCRIPT_ENABLED"
-        source "$MODPATH/$CustomScriptPath"
+        # shellcheck disable=SC1090
+        . "$MODPATH/$CustomScriptPath"
     else
         Aurora_abort "CustomScript$ERROR_INVALID_LOCAL_VALUE" 4
     fi
 }
 ###############
 ClearEnv() {
-    find "$INSTALLER_MODPATH" ! -name "module.prop" -exec rm -rf {} \;
     if [ "$APATCH" != true ]; then
-        cp "$INSTALLER_MODPATH/module.prop" "/data/adb/modules/AuroraNasaInstaller/module.prop"
         rm -rf "$INSTALLER_MODPATH"
+        cp "$INSTALLER_MODPATH/module.prop" "/data/adb/modules/AuroraNasaInstaller/module.prop"
     fi
+    find "$INSTALLER_MODPATH" ! -name "module.prop" -exec rm -rf {} \;
 }
 ##########################################################
 main
