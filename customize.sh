@@ -270,15 +270,15 @@ check_network() {
 
     if [ $baidu_status -eq 0 ]; then
         Aurora_ui_print "$INTERNET_CONNET (Baidu.com)"
-        return 0
+        Internet_CONN=1
     elif [ $google_status -eq 0 ]; then
         Aurora_ui_print "$INTERNET_CONNET (Google)"
-        return 0
+        Internet_CONN=2
     elif [ $github_status -eq 0 ]; then
         Aurora_ui_print "$INTERNET_CONNET (GitHub)"
-        return 0
+        Internet_CONN=3
     else
-        return 1
+        Internet_CONN=
     fi
 }
 github_get_url() {
@@ -354,6 +354,7 @@ sclect_settings_install_on_main() {
     zips="$MODPATH"/prebuilts/7zzs
     set_permissions_755 "$jq"
     set_permissions_755 "$zips"
+    local network_counter=1
     if [ -f "$MODPATH"/output.7z ]; then
         un7z "$MODPATH/output.7z" "$MODPATH/files/"
         rm "$MODPATH/output.7z"
@@ -368,21 +369,26 @@ sclect_settings_install_on_main() {
     if [[ "$Download_before_install" == "false" ]]; then
         return
     elif [[ "$Download_before_install" == "true" ]]; then
-        if ! check_network; then
-            Aurora_ui_print "$CHECK_NETWORK"
-            return
-        fi
+        check_network
+    elif [[ -z "$Internet_CONN" ]]; then
+        Aurora_ui_print "$CHECK_NETWORK"
+        return
+    fi
 
-        for var in $(env | grep '^LINKS_' | cut -d= -f1); do
-            link=${!var}
+    while [ $network_counter -le 20 ]; do
+        var_name="LINKS_${network_counter}"
+
+        if [ -n "${!var_name}" ]; then
+            eval "link=\$${var_name}"
+
             if [ -n "$link" ]; then
                 download_file "$link"
             fi
-        done
-        initialize_install "$download_destination/"
-    else
-        Aurora_abort "Download_before_install$ERROR_INVALID_LOCAL_VALUE" 4
-    fi
+        fi
+
+        ((network_counter++))
+    done
+    initialize_install "$download_destination/"
 }
 #About_the_custom_script
 ###############
