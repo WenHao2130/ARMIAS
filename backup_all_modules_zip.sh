@@ -31,13 +31,8 @@ for DIR in "$TARGET_DIR"*/; do
     echo "Processing directory: $DIR_NAME"
 
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
-<<<<<<< HEAD
     $zips a -r "$OUTPUT_FILE" "$DIR/"
     return_code=$?
-=======
- $zips a "$OUTPUT_FILE" "$DIR/*"
- return_code=$?
->>>>>>> 76039d84d103e5e64b5601b30ed00165e4c95ddf
     if [ "$return_code" -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
     else
