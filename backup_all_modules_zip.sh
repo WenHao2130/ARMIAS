@@ -17,8 +17,6 @@ if [ "$(whoami)" != "root" ]; then
    echo "This script must be run with root privileges. Please run this script as a root user."
    exit 1
 fi
-cp "$pwddir/prebuilts/7zzs" "/data/local/tmp/"
-chmod 777 "/data/local/tmp/7zzs"
 for DIR in "$TARGET_DIR"*/; do
 
     if [ ! -d "$DIR" ]; then
@@ -30,12 +28,23 @@ for DIR in "$TARGET_DIR"*/; do
     echo "Processing directory: $DIR_NAME"
 
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
-    /data/local/tmp/7zzs a -r -mx9 "$OUTPUT_FILE" "$DIR"/*
-    if [ $? -eq 0 ]; then
+    if [ -d /data/adb/magisk/ ]; then
+    echo "Magisk环境已检测到，正在备份模块。"
+    /data/adb/magisk/busybox zip -r "$OUTPUT_FILE" "$DIR/"
+    return_code=$?
+elif [ -d /data/adb/ksu ]; then
+    echo "KernelSU环境已检测到，正在备份模块。"
+    /data/adb/ksu/bin/busybox zip -r "$OUTPUT_FILE" "$DIR/"
+    return_code=$?
+elif [ -d /data/adb/ap ]; then
+    echo "APatch环境已检测到，正在备份模块。"
+    /data/adb/apd/bin/busybox zip -r "$OUTPUT_FILE" "$DIR/"
+    return_code=$?
+fi
+    if [ "$return_code" -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
     else
         echo "Failed to create archive for directory: $DIR_NAME"
     fi
 done
-rm -f "/data/local/tmp/7zzs"
 echo "All directories have been processed."
