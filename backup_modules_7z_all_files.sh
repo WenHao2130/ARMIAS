@@ -2,7 +2,7 @@
 TARGET_DIR="/data/adb/modules/"
 current_dir=$(pwd)
 OUTPUT_DIR="$pwddir/files/modules/"
-zip7z="/data/local/tmp/7zzs"
+zstd="/data/local/tmp/zstd"
 temp_dirs=("/tmp" "/temp" "/Temp" "/TEMP" "/TMP" "/Android/data")
 for dir in "${temp_dirs[@]}"; do
     if [[ $current_dir == *"$dir"* ]]; then
@@ -18,8 +18,8 @@ if [ "$(whoami)" != "root" ]; then
    exit 1
 fi
 echo "脚本正在以root权限运行。"
-cp "$current_dir/prebuilts/7zzs" "/data/local/tmp/"
-chmod 777 "$zip7z"
+cp "$current_dir/prebuilts/zstd" "/data/local/tmp/"
+chmod 777 "$zstd"
 for DIR in "$TARGET_DIR"*/; do
     if [ ! -d "$DIR" ]; then
         continue
@@ -29,14 +29,15 @@ for DIR in "$TARGET_DIR"*/; do
     cp -r "$DIR" "$OUTPUT_DIR"
 done
 echo "All files have been copied to $OUTPUT_DIR"
-$zip7z a -r -mx=9 "$current_dir"/output.7z "$current_dir"/files/*
+tar -cf "$current_dir"/archive.tar "$current_dir"/files/*
+$zstd "$current_dir"/output.tar.zst "$current_dir"/archive.tar
 if [ $? -eq 0 ]; then
-    echo "Successfully created archive: $current_dir/output.7z"
+    echo "Successfully created archive: $current_dir/output.tar.zst"
 else
-    echo "Failed to create archive for directory: output.7z"
+    echo "Failed to create archive for directory: output.tar.zst"
 fi
 rm -rf "$current_dir"/files/*
-$zip7z a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
+zip a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/ARMIAS.zip"
 else

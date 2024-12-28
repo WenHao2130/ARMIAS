@@ -376,13 +376,13 @@ download_file() {
 ##############
 sclect_settings_install_on_main() {
     jq="$MODPATH"/prebuilts/jq
-    zips="$MODPATH"/prebuilts/7zzs
+    zips="$MODPATH"/prebuilts/zstd
     set_permissions_755 "$jq"
     set_permissions_755 "$zips"
     local network_counter=1
-    if [ -f "$MODPATH"/output.7z ]; then
-        un7z "$MODPATH/output.7z" "$MODPATH/files/"
-        rm "$MODPATH/output.7z"
+    if [ -f "$MODPATH"/output.tar.zst ]; then
+        un_zstd_tar "$MODPATH/output.tar.zst" "$MODPATH/files/"
+        rm "$MODPATH/output.tar.zst"
     fi
     if [ "$install" = "false" ]; then
         return
@@ -417,10 +417,12 @@ mv_adb() {
     Aurora_test_input "mv_adb" "1" "$1"
     su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
-un7z() {
+un_zstd_tar() {
     Aurora_test_input "un7z" "1" "$1"
     Aurora_test_input "un7z" "2" "$2"
-    $zips x "$1" -o"$2" >/dev/null 2>&1
+    $zips -d "$1" -o "$2/temp.tar"
+    tar -xf "$2/temp.tar" -C "$2"
+    rm "$2/temp.tar"
     if [ $? -eq 0 ]; then
         Aurora_ui_print "$UNZIP_FINNSH"
     else
