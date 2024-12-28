@@ -4,7 +4,7 @@ TARGET_DIR="/data/adb/modules/"
 pwddir="$(pwd)"
 OUTPUT_DIR="$pwddir/files/modules/"
 zips="/data/local/tmp/7zzs"
-cp "$current_dir/prebuilts/7zzs" "/data/local/tmp/"
+cp "$pwddir/prebuilts/7zzs" "/data/local/tmp/"
 chmod 755 "$zips"
 temp_dirs=("/tmp" "/var/tmp" "/Temp" "/Users/*/Library/Caches" "/storage/emulated/0/Android/data/bin.mt.plus/temp")
 for dir in "${temp_dirs[@]}"; do
@@ -31,7 +31,7 @@ for DIR in "$TARGET_DIR"*/; do
     echo "Processing directory: $DIR_NAME"
 
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
- $zips a -r "$OUTPUT_FILE" "$DIR/"
+ $zips a "$OUTPUT_FILE" "$DIR/*"
  return_code=$?
     if [ "$return_code" -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
