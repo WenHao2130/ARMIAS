@@ -20,24 +20,18 @@ fi
 echo "脚本正在以root权限运行。"
 cp "$current_dir/prebuilts/zstd" "/data/local/tmp/"
 chmod 777 "$zstd"
-for DIR in "$TARGET_DIR"*/; do
-    if [ ! -d "$DIR" ]; then
-        continue
-    fi
-    DIR_NAME=$(basename "$DIR")
-    echo "Processing directory: $DIR_NAME"
-    cp -r "$DIR" "$OUTPUT_DIR"
-done
+cp -r "$TARGET_DIR"/* "$OUTPUT_DIR"
 echo "All files have been copied to $OUTPUT_DIR"
 tar -cf "$current_dir"/archive.tar "$current_dir"/files/*
 $zstd "$current_dir"/output.tar.zst "$current_dir"/archive.tar
+rm "$current_dir"/archive.tar
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/output.tar.zst"
 else
     echo "Failed to create archive for directory: output.tar.zst"
 fi
 rm -rf "$current_dir"/files/*
-zip a -r "$current_dir"/ARMIAS.zip "$current_dir"/*
+zip -r "$current_dir"/ARMIAS.zip "$current_dir/"
 if [ $? -eq 0 ]; then
     echo "Successfully created archive: $current_dir/ARMIAS.zip"
 else
@@ -52,7 +46,7 @@ rm -f "$current_dir"/customize.sh
 rm -f "$current_dir"/languages.ini
 rm -f "$current_dir"/service.sh
 rm -f "$current_dir"/output.7z
-rm -f "$current_dir"/backup_all_modules.sh
+rm -f "$current_dir"/backup_all_modules_zip.sh
 rm -f "$current_dir"/module.prop
 rm -f "$zip7z"
 (
