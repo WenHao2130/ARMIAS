@@ -7,11 +7,11 @@
 - 将所有模块（zip文件）放入`./files/modules`文件夹中即可。
 **注意**：请确保文件名**不含特殊字符**。
 
-- 将此模块zip文件夹解压，运行`backup_all_modules.sh`来备份所有模块。
+- 将此模块zip文件夹解压，运行`backup_all_modules_zip.sh`来备份所有模块。
 
 #### 进阶功能（可选阅读）
 
-- 运行`7zzs_all_files.sh`来压缩所有文件以节省空间。
+- 运行`backup_modules_zstd_all_files`备份模块（文件夹）以zstd压缩所有模块文件。并自动压缩本模块。
 
 - **DATA和SDCARD一键覆盖**  
   - 鉴于某些模块安装后会生成配置文件等在data/或android文件夹中。
