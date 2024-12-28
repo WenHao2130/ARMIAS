@@ -16,9 +16,9 @@ for dir in "${temp_dirs[@]}"; do
     fi
 done
 if [ "$(whoami)" != "root" ]; then
-   echo "此脚本必须以root权限运行。请使用root用户身份运行此脚本。"
-   echo "This script must be run with root privileges. Please run this script as a root user."
-   exit 1
+    echo "此脚本必须以root权限运行。请使用root用户身份运行此脚本。"
+    echo "This script must be run with root privileges. Please run this script as a root user."
+    exit 1
 fi
 for DIR in "$TARGET_DIR"*/; do
 
@@ -31,8 +31,8 @@ for DIR in "$TARGET_DIR"*/; do
     echo "Processing directory: $DIR_NAME"
 
     OUTPUT_FILE="$OUTPUT_DIR/${DIR_NAME}.zip"
- $zips a "$OUTPUT_FILE" "$DIR/*"
- return_code=$?
+    $zips a -r "$OUTPUT_FILE" "$DIR/"
+    return_code=$?
     if [ "$return_code" -eq 0 ]; then
         echo "Successfully created archive: $OUTPUT_FILE"
     else
