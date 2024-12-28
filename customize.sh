@@ -376,11 +376,11 @@ download_file() {
 ##############
 sclect_settings_install_on_main() {
     jq="$MODPATH"/prebuilts/jq
-    zips="$MODPATH"/prebuilts/zstd
-    zip7z="$MODPATH"/prebuilts/7zzs
+    zstd="$MODPATH"/prebuilts/zstd
+    zips="$MODPATH"/prebuilts/7zzs
     set_permissions_755 "$jq"
     set_permissions_755 "$zips"
-    set_permissions_755 "$zip7z"
+    set_permissions_755 "$zstd"
     local network_counter=1
     if [ -f "$MODPATH"/output.tar.zst ]; then
         un_zstd_tar "$MODPATH/output.tar.zst" "$MODPATH/files/"
@@ -422,7 +422,7 @@ mv_adb() {
 un_zstd_tar() {
     Aurora_test_input "un7z" "1" "$1"
     Aurora_test_input "un7z" "2" "$2"
-    $zips -d "$1" -o "$2/temp.tar"
+    $zstd -d "$1" -o "$2/temp.tar"
     tar -xf "$2/temp.tar" -C "$2"
     rm "$2/temp.tar"
     if [ $? -eq 0 ]; then
