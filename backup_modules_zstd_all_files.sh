@@ -3,6 +3,8 @@ TARGET_DIR="/data/adb/modules/"
 current_dir=$(pwd)
 OUTPUT_DIR="$current_dir/files/modules/"
 zstd="/data/local/tmp/zstd"
+zips="/data/local/tmp/7zzs"
+
 temp_dirs=("/tmp" "/temp" "/Temp" "/TEMP" "/TMP" "/Android/data")
 for dir in "${temp_dirs[@]}"; do
     if [[ $current_dir == *"$dir"* ]]; then
@@ -19,7 +21,10 @@ if [ "$(whoami)" != "root" ]; then
 fi
 echo "脚本正在以root权限运行。"
 cp "$current_dir/prebuilts/zstd" "/data/local/tmp/"
+cp -r "$current_dir"/prebuilts/7zzs "/data/local/tmp/"
+
 chmod 777 "$zstd"
+chmod 777 "$zips"
 cp -r "$TARGET_DIR"/* "$OUTPUT_DIR"
 echo "All files have been copied to $OUTPUT_DIR"
 tar -cf "$current_dir"/archive.tar "$current_dir"/files/*
@@ -31,19 +36,8 @@ else
     echo "Failed to create archive for directory: output.tar.zst"
 fi
 rm -rf "$current_dir"/files/*
-if [ -d /data/adb/magisk/ ]; then
-    echo "Magisk环境已检测到，正在备份所有模块。"
-    /data/adb/magisk/busybox zip -r "$current_dir"/ARMIAS.zip "$current_dir/"
+    $zips a -r "$current_dir"/ARMIAS.zip "$current_dir/"
     return_code=$?
-elif [ -d /data/adb/ksu ]; then
-    echo "KernelSU环境已检测到，正在备份所有模块。"
-    /data/adb/ksu/bin/busybox zip -r "$current_dir"/ARMIAS.zip "$current_dir/"
-    return_code=$?
-elif [ -d /data/adb/ap ]; then
-    echo "APatch环境已检测到，正在备份所有模块。"
-    /data/adb/apd/bin/busybox zip -r "$current_dir"/ARMIAS.zip "$current_dir/"
-    return_code=$?
-fi
 if [ "$return_code" -eq 0 ]; then
     echo "Successfully created archive: $current_dir/ARMIAS.zip"
 else

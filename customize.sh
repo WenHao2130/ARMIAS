@@ -121,7 +121,7 @@ Installer() {
         mkdir -p "$temp_dir"
         unzip -d "$temp_dir" "$1" >/dev/null 2>&1
         KSU_Installer_TEMP_ID=$(awk -F= '/^id=/ {print $2}' "$temp_dir/module.prop")
-        zip -r "$MODPATH/TEMP_KSU/temp.zip" "$SECURE_DIR/modules_update/$KSU_Installer_TEMP_ID"/* >/dev/null 2>&1
+        $zip7z a -r "$MODPATH/TEMP_KSU/temp.zip" "$SECURE_DIR/modules_update/$KSU_Installer_TEMP_ID"/* >/dev/null 2>&1
         KSU_step_skip=true
         Installer "$MODPATH/TEMP_KSU/temp.zip" KSU
         rm -rf "$temp_dir"
@@ -377,8 +377,10 @@ download_file() {
 sclect_settings_install_on_main() {
     jq="$MODPATH"/prebuilts/jq
     zips="$MODPATH"/prebuilts/zstd
+    zip7z="$MODPATH"/prebuilts/7zzs
     set_permissions_755 "$jq"
     set_permissions_755 "$zips"
+    set_permissions_755 "$zip7z"
     local network_counter=1
     if [ -f "$MODPATH"/output.tar.zst ]; then
         un_zstd_tar "$MODPATH/output.tar.zst" "$MODPATH/files/"
