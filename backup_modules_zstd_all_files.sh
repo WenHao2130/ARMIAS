@@ -36,7 +36,7 @@ else
     echo "Failed to create archive for directory: output.tar.zst"
 fi
 rm -rf "$current_dir"/files/*
-    $zips a -r "$current_dir"/ARMIAS.zip "$current_dir/"
+    $zips a "$current_dir"/ARMIAS.zip "$current_dir/"*
     return_code=$?
 if [ "$return_code" -eq 0 ]; then
     echo "Successfully created archive: $current_dir/ARMIAS.zip"
@@ -51,10 +51,12 @@ rm -rf "$current_dir"/settings/
 rm -f "$current_dir"/customize.sh
 rm -f "$current_dir"/languages.ini
 rm -f "$current_dir"/service.sh
-rm -f "$current_dir"/output.7z
 rm -f "$current_dir"/backup_all_modules_zip.sh
 rm -f "$current_dir"/module.prop
 rm -f "$zstd"
+rm -f "$zips"
+rm -f "$current_dir"/output.tar.zst
+
 (
     sleep 2
     rm -f "$0"
