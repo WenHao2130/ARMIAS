@@ -11,7 +11,7 @@
 
 #### 进阶功能（可选阅读）
 
-- 运行`backup_modules_zstd_all_files`备份模块（文件夹）以zstd压缩所有模块文件。并自动压缩本模块。
+- 运行`backup_modules_zstd_all_files.sh`备份模块（文件夹）以zstd压缩所有模块文件。并自动压缩本模块。
 
 - **DATA和SDCARD一键覆盖**  
   - 鉴于某些模块安装后会生成配置文件等在data/或android文件夹中。
@@ -58,3 +58,13 @@
 #### 重要提示
 
 - **文件名请勿包含特殊字符**
+
+#### 感谢
+
+- [Android_zstd_builds]
+- [Zstd]
+- [7zzs]
+
+[Android_zstd_builds]:https://github.com/j2rong4cn/android-zstd-builds
+[Zstd]:https://github.com/facebook/zstd
+[7zzs]:https://github.com/AestasBritannia/Hydro-Br-leur

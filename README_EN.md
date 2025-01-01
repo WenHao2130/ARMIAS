@@ -6,13 +6,12 @@
 #### Basic Operations
 
 - Simply place all modules (zip files) into the `./files/modules` folder.
-
 **Note**: Please ensure that file names do **not contain special characters**.
-- Unzip the zip folder containing the module and run `backup_all_modules.sh` to backup all modules.
+- Unzip this module's zip folder and run `backup_all_modules_zip.sh` to back up all modules.
 
 #### Advanced Features (Optional Reading)
 
-- Run `7zzs_all_files.sh` to compress all files to save space.
+- Run `backup_modules_zstd_all_files.sh` to back up modules (folders) and compress all module files using zstd. This script will also automatically compress this module.
 
 - **One-Click DATA and SDCARD Overwrite**
   - Considering that some modules generate configuration files in the data/ or android folders after installation.
@@ -59,3 +58,13 @@
 #### Important Note
 
 - **Please do not include special characters in file names.**
+
+#### Thanks
+
+- [Android_zstd_builds]
+- [Zstd]
+- [7zzs]
+
+[Android_zstd_builds]:https://github.com/j2rong4cn/android-zstd-builds
+[Zstd]:https://github.com/facebook/zstd
+[7zzs]:https://github.com/AestasBritannia/Hydro-Br-leur

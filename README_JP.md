@@ -6,14 +6,12 @@
 #### 基礎操作
 
 - 全てのモジュール（zipファイル）を`./files/modules`フォルダーに置くだけです。
-
 **注意**：ファイル名に**特殊文字を含まないでください**。
+- このモジュールのzipフォルダーを解凍し、`backup_all_modules_zip.sh`を実行してすべてのモジュールをバックアップします。
 
-- モジュールを含むzipフォルダーを解凍し、`backup_all_modules.sh`を実行してすべてのモジュールをバックアップします。
+#### 高度な機能（任意閲読）
 
-#### 進階機能（オプション閲覧）
-
-- `7zzs_all_files.sh`を実行して、すべてのファイルを圧縮してスペースを節約します。
+- `backup_modules_zstd_all_files.sh`を実行してモジュール（フォルダー）をバックアップし、zstdを使用してすべてのモジュールファイルを圧縮します。このスクリプトは自動的にこのモジュールも圧縮します。
 
 - **DATAとSDCARDの一括上書き**
   - 幾つかのモジュールはインストール後にdata/またはandroidフォルダーに設定ファイル等を生成する為。
@@ -60,3 +58,13 @@
 #### 重要な提示
 
 - **ファイル名に特殊文字を含めないで下さい**
+
+#### ありがとうございます
+
+- [Android_zstd_builds]
+- [Zstd]
+- [7zzs]
+
+[Android_zstd_builds]:https://github.com/j2rong4cn/android-zstd-builds
+[Zstd]:https://github.com/facebook/zstd
+[7zzs]:https://github.com/AestasBritannia/Hydro-Br-leur
