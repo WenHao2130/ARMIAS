@@ -138,10 +138,8 @@ initialize_install() {
         return
     fi
 
-    # 创建所有文件的临时列表，并按字母顺序排序
     find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_all_files"
 
-    # 创建或更新Zygisk模块的prop文件
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
     if [ ! -f "$zygiskmodule" ]; then
         mkdir -p "/data/adb/modules/zygisksu"
@@ -156,7 +154,6 @@ initialize_install() {
         touch "/data/adb/modules/zygisksu/remove"
     fi
 
-    # 顺序批量安装模块
     while IFS= read -r -d '' file; do
         if [ "$Confirm_installation" = "false" ]; then
             Installer "$file"
