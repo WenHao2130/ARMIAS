@@ -13,15 +13,15 @@ body:
        label: Please check before submitting an issue
        options:
           - label: 我使用的本模块已经更新到最新版本了？
-            required: true
+            required: false
 
-          - label: 关于自定义脚本的问题？
+          - label: 我使用的本模块是Action CI build 版本？
             required: false
 
           - label: 我使用的Magisk或KernelSU或APatch已更新到最新版本？
-            required: true
-            
-          - label: 我使用的本模块是Action CI build 版本？
+            required: false
+
+          - label: 关于自定义脚本的问题？
             required: false
 
   - type: input
