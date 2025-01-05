@@ -8,7 +8,7 @@ cp "$pwddir/prebuilts/7zzs" "/data/local/tmp/"
 chmod 755 "$zips"
 temp_dirs=("/tmp" "/var/tmp" "/Temp" "/Users/*/Library/Caches" "/storage/emulated/0/Android/data/bin.mt.plus/temp")
 for dir in "${temp_dirs[@]}"; do
-    if [[ $pwddir == $dir* ]]; then
+    if [[ $pwddir == *"$dir"* ]]; then
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
         echo "当前目录是临时目录或其子目录。请解压到其他目录再执行脚本"
         echo "The current directory is a temporary directory or its subdirectory. Please extract to another directory before executing the script."

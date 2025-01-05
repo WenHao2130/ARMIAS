@@ -1,6 +1,4 @@
-TARGET_DIR="/data/adb/modules/"
 current_dir=$(pwd)
-OUTPUT_DIR="$current_dir/files/modules/"
 zstd="/data/local/tmp/zstd"
 zips="/data/local/tmp/7zzs"
 
@@ -32,7 +30,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to create archive for directory: output.tar.zst"
 fi
-rm -rf "$current_dir"/files/*
     $zips a "$current_dir"/ARMIAS.zip "$current_dir/"*
     return_code=$?
 if [ "$return_code" -eq 0 ]; then
@@ -42,7 +39,6 @@ else
     exit 0
 fi
 rm -rf "$current_dir"/prebuilts/
-rm -rf "$current_dir"/files/
 rm -rf "$current_dir"/META-INF/
 rm -rf "$current_dir"/settings/
 rm -f "$current_dir"/customize.sh
@@ -53,8 +49,9 @@ rm -f "$current_dir"/module.prop
 rm -f "$zstd"
 rm -f "$zips"
 rm -f "$current_dir"/output.tar.zst
-
+rm -f "$current_dir"/Make_module.sh
+echo "将保留files文件夹，其余文件已删除。如需删除，请手动执行。"
 (
-    sleep 2
+    sleep 1
     rm -f "$0"
 ) &
