@@ -1,11 +1,7 @@
 name: 反馈Bug
-
 description: 请提供详细的Bug报告，以便我们能够更快地解决问题。
-
 title: "[Bug] 标题简要描述问题"
-
 labels: bug
-
 body:
   - type: markdown
     attributes:
@@ -67,7 +63,7 @@ body:
     validations:
         required: true
         
-  - type: bug_reporter
+  - type: textarea
     id: 安装日志
     attributes:
       label: 安装日志
