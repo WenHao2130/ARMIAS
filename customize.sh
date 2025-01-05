@@ -117,21 +117,21 @@ Installer() {
         Aurora_abort "Installer_Compatibility$ERROR_INVALID_LOCAL_VALUE" 4
     fi
     if [ "$fix_ksu_install" = "true" ] && [ "$KSU" = true ] && [ -z "$KSU_step_skip" ]; then
-        temp_dir="$MODPATH/TEMP_KSU"
+        temp_dir="$MODPATH/TEMP/KSU"
         mkdir -p "$temp_dir"
         unzip -d "$temp_dir" "$1" >/dev/null 2>&1
         KSU_Installer_TEMP_ID=$(awk -F= '/^id=/ {print $2}' "$temp_dir/module.prop")
-        $zip7z a -r "$MODPATH/TEMP_KSU/temp.zip" "$SECURE_DIR/modules_update/$KSU_Installer_TEMP_ID"/* >/dev/null 2>&1
+        $zip7z a -r "$MODPATH/TEMP/KSU/temp.zip" "$SECURE_DIR/modules_update/$KSU_Installer_TEMP_ID"/* >/dev/null 2>&1
         KSU_step_skip=true
-        Installer "$MODPATH/TEMP_KSU/temp.zip" KSU
+        Installer "$MODPATH/TEMP/KSU/temp.zip" KSU
         rm -rf "$temp_dir"
         KSU_step_skip=""
     fi
 }
 initialize_install() {
     local dir="$1"
-    mkdir -p "$MODPATH/TEMP/dirTMP"
-    local temp_all_files="$MODPATH/TEMP/dirTMP"
+    mkdir -p "$MODPATH/TEMP/TEMP"
+    local temp_all_files="$MODPATH/TEMP/listTMP.txt"
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
@@ -308,7 +308,8 @@ download_file() {
     local filename=$(wget --spider -S "$link" 2>&1 | grep -o -E 'filename="[^"]*"' | sed -e 's/^filename="//' -e 's/"$//')
     local local_path="$download_destination/$filename"
     local retry_count=0
-    local wget_file=$(mktemp)
+    mkdir -p "$MODPATH/TEMP"
+    local wget_file="$MODPATH/TEMP/wget_file"
     mkdir -p "$download_destination"
 
     wget -S --spider "$link" 2>&1 | grep 'Content-Length:' | awk '{print $2}' >"$wget_file"
@@ -387,8 +388,8 @@ mv_adb() {
     su -c mv "$MODPATH/$1"/* "/data/adb/"
 }
 un_zstd_tar() {
-    Aurora_test_input "un7z" "1" "$1"
-    Aurora_test_input "un7z" "2" "$2"
+    Aurora_test_input "un_zstd_tar" "1" "$1"
+    Aurora_test_input "un_zstd_tar" "2" "$2"
     $zstd -d "$1" -o "$2/temp.tar"
     tar -xf "$2/temp.tar" -C "$2"
     rm "$2/temp.tar"
