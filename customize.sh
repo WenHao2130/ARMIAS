@@ -138,7 +138,7 @@ initialize_install() {
         return
     fi
 
-    find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_all_files"
+    find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
 
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
     if [ ! -f "$zygiskmodule" ]; then
@@ -150,7 +150,7 @@ initialize_install() {
             echo "versionCode=462"
             echo "author=null"
             echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number"
-        } > "$zygiskmodule"
+        } >"$zygiskmodule"
         touch "/data/adb/modules/zygisksu/remove"
     fi
 
@@ -163,7 +163,7 @@ initialize_install() {
         else
             Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
         fi
-    done < "$temp_all_files"
+    done <"$temp_all_files"
 
     if [ -z "$(cat "$temp_all_files")" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
@@ -190,14 +190,16 @@ patches_install() {
     patch_default "$MODPATH" "$PATCHMOD" "$SECURE_DIR/modules_update/"
     if [ -d "$MODPATH/$PATCHAPK" ]; then
         apk_found=0
-        for apk_file in "$MODPATH"/"$PATCHAPK"/*.apk; do
-            if [ -f "$apk_file" ]; then
-                if pm install "$apk_file"; then
-                    apk_found=1
-                else
-                    Aurora_ui_print "$WARN_APK_INSTALLATION_FAILED $apk_file"
+        for suffix in APK Apk apks APKS Apks; do
+            for apk_file in "$MODPATH"/"$PATCHAPK"/*."$suffix"; do
+                if [ -f "$apk_file" ]; then
+                    if pm install "$apk_file"; then
+                        apk_found=1
+                    else
+                        Aurora_ui_print "$WARN_APK_INSTALLATION_FAILED $apk_file"
+                    fi
                 fi
-            fi
+            done
         done
         if [ $apk_found -eq 0 ]; then
             Aurora_ui_print "$WARN_PATCH_NOT_FOUND_IN $PATCHAPK"
@@ -206,7 +208,6 @@ patches_install() {
         Aurora_ui_print "$PATCHAPK $WARN_PATCHPATH_NOT_FOUND_IN_DIRECTORY"
     fi
 }
-
 key_select() {
     key_pressed=""
     while true; do
