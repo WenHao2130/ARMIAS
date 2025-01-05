@@ -9,6 +9,7 @@
 **Note**: Please ensure that file names do **not contain special characters**.
 - Unzip this module's zip folder and run `backup_all_modules_zip.sh` to back up all modules.
 
+- Run `Make_module.sh` to package this module
 #### Advanced Features (Optional Reading)
 
 - Run `backup_modules_zstd_all_files.sh` to back up modules (folders) and compress all module files using zstd. This script will also automatically compress this module.

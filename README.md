@@ -9,6 +9,8 @@
 
 - 将此模块zip文件夹解压，运行`backup_all_modules_zip.sh`来备份所有模块。
 
+- 运行`Make_module.sh`打包本模块
+
 #### 进阶功能（可选阅读）
 
 - 运行`backup_modules_zstd_all_files.sh`备份模块（文件夹）以zstd压缩所有模块文件。并自动压缩本模块。
