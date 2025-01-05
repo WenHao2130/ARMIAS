@@ -130,32 +130,18 @@ Installer() {
 }
 initialize_install() {
     local dir="$1"
-    local temp_matching_files=$(mktemp)
-    local temp_all_files=$(mktemp)
-    local temp_zip_files=$(mktemp)
+    mkdir -p "$MODPATH/TEMP/dirTMP"
+    local temp_all_files="$MODPATH/TEMP/dirTMP"
 
     if [ ! -d "$dir" ]; then
         Aurora_ui_print "$WARN_ZIPPATH_NOT_FOUND $dir"
-        rm -f "$temp_matching_files" "$temp_all_files"
         return
     fi
-    find "$dir" -mindepth 1 -maxdepth 1 -type d | while read -r entry; do
-        local dirname=$(basename "$entry")
-        local zip_file="$dir/$dirname.zip"
-        $zips a -r "$zip_file" "$entry" >/dev/null 2>&1
-        rm -rf "$entry"
-    done
-    find "$dir" -maxdepth 1 -type f -print0 | sort -z >"$temp_all_files"
 
-    while IFS= read -r -d '' file; do
-        for pattern in $delayed_patterns; do
-            # shellcheck disable=SC3010
-            if [[ "$file" == *"$pattern"* ]]; then
-                echo "$file" >>"$temp_matching_files"
-                break
-            fi
-        done
-    done <"$temp_all_files"
+    # 创建所有文件的临时列表，并按字母顺序排序
+    find "$dir" -maxdepth 1 -type f -print0 | sort -z > "$temp_all_files"
+
+    # 创建或更新Zygisk模块的prop文件
     zygiskmodule="/data/adb/modules/zygisksu/module.prop"
     if [ ! -f "$zygiskmodule" ]; then
         mkdir -p "/data/adb/modules/zygisksu"
@@ -165,44 +151,28 @@ initialize_install() {
             echo "version=1.0"
             echo "versionCode=462"
             echo "author=null"
-            echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number for installation via Shamiko"
-        } >>"$zygiskmodule"
+            echo "description=[Please DO NOT enable] This module is used by the installer to disguise the Zygisk version number"
+        } > "$zygiskmodule"
         touch "/data/adb/modules/zygisksu/remove"
     fi
-    while IFS= read -r -d '' file; do
-        grep -qFx "$file" "$temp_matching_files" || {
-            if [ "$Confirm_installation" = "false" ]; then
-                Installer "$file"
-            elif [ "$Confirm_installation" = "true" ]; then
-                local file_name=$(basename "$file")
-                key_installer_once "$file" "$file_name"
-            else
-                Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
-            fi
-        }
-    done <"$temp_all_files"
 
+    # 顺序批量安装模块
     while IFS= read -r -d '' file; do
-        # shellcheck disable=SC3010
-        # shellcheck disable=SC2235
-        if [[ "$file" == *Shamiko* ]] && ([ "$KSU" = true ] || [ "$APATCH" = true ]); then
-            SKIP_INSTALL_SHAMIKO=false
-            if [ "$APATCH" = true ]; then
-                Aurora_ui_print "$APATCH_SHAMIKO_INSTALLATION_SKIPPED"
-                key_installer_once "$file" Shamiko
-                SKIP_INSTALL_SHAMIKO=true
-            fi
-        fi
-
-        if [ "$SKIP_INSTALL_SHAMIKO" != "true" ]; then
+        if [ "$Confirm_installation" = "false" ]; then
             Installer "$file"
+        elif [ "$Confirm_installation" = "true" ]; then
+            local file_name=$(basename "$file")
+            key_installer_once "$file" "$file_name"
+        else
+            Aurora_abort "Confirm_installation$ERROR_INVALID_LOCAL_VALUE" 4
         fi
-    done <"$temp_matching_files"
+    done < "$temp_all_files"
+
     if [ -z "$(cat "$temp_all_files")" ]; then
         Aurora_ui_print "$WARN_NO_MORE_FILES_TO_INSTALL"
     fi
 
-    rm -f "$temp_matching_files" "$temp_all_files"
+    rm -f "$temp_all_files"
 }
 
 patch_default() {
