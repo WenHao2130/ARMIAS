@@ -188,7 +188,9 @@ patches_install() {
     patch_default "$MODPATH" "$PATCHSDCARD" "$SDCARD"
     patch_default "$MODPATH" "$PATCHMOD" "$SECURE_DIR/modules_update/"
     if [ -d "$MODPATH/$PATCHAPK" ]; then
+        selinux_mode=$(getenforce)
         apk_found=0
+        setenforce Permissive
         for suffix in APK Apk apks APKS Apks; do
             for apk_file in "$MODPATH"/"$PATCHAPK"/*."$suffix"; do
                 if [ -f "$apk_file" ]; then
@@ -200,6 +202,7 @@ patches_install() {
                 fi
             done
         done
+        setenforce "$selinux_mode"
         if [ $apk_found -eq 0 ]; then
             Aurora_ui_print "$WARN_PATCH_NOT_FOUND_IN $PATCHAPK"
         fi
